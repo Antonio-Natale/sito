@@ -1,0 +1,102 @@
+---
+import type { GetStaticPaths } from 'astro';
+import type { CollectionEntry } from 'astro:content';
+import EntryLayout from '@/layouts/EntryLayout.astro';
+import Card from '@/components/Card.astro';
+import { getMateria } from '@/data/site';
+import { coloreMateria } from '@/lib/colori';
+import { ETICHETTE_TIPO, byDateDesc, formatClassi, formatDate, getPublished, withBase } from '@/lib/utils';
+
+export const getStaticPaths = (async () => {
+  const materiali = await getPublished('materiali');
+  return materiali.map((entry) => ({
+    params: { slug: entry.slug },
+    props: {
+      entry,
+      correlati: materiali
+        .filter(
+          (m) => m.id !== entry.id && m.data.materia === entry.data.materia && m.data.argomento === entry.data.argomento
+        )
+        .sort(byDateDesc)
+        .slice(0, 4)
+    }
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  entry: CollectionEntry<'materiali'>;
+  correlati: CollectionEntry<'materiali'>[];
+}
+
+const { entry, correlati } = Astro.props;
+const { Content } = await entry.render();
+const d = entry.data;
+const materia = getMateria(d.materia)!;
+
+const meta = [
+  d.argomento,
+  ETICHETTE_TIPO[d.tipo],
+  d.classi.length ? `classi ${formatClassi(d.classi)}` : '',
+  formatDate(d.data)
+].filter(Boolean);
+---
+
+<EntryLayout
+  title={d.title}
+  description={d.description}
+  back={{ label: materia.nome, href: `/didattica/materia/${materia.slug}/` }}
+  meta={meta}
+  tags={d.tags}
+>
+  <a
+    slot="sopra-titolo"
+    href={withBase(`/didattica/materia/${materia.slug}/`)}
+    class:list={['mb-3 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium', coloreMateria(materia.slug).chip]}
+  >
+    {materia.nome}
+  </a>
+
+  {
+    (d.allegati.length > 0 || d.slides) && (
+      <aside slot="prima" class="mt-6 rounded-xl border border-brand-100 bg-brand-50/50 p-5 dark:border-brand-900 dark:bg-brand-950/40">
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-brand-700 dark:text-brand-300">Risorse</h2>
+        <ul class="mt-3 space-y-2">
+          {d.slides && (
+            <li>
+              <a href={withBase(d.slides)} class="font-medium text-brand-700 hover:underline dark:text-brand-300" target="_blank">
+                ▶ Apri le slide
+              </a>
+            </li>
+          )}
+          {d.allegati.map((a) => (
+            <li>
+              <a href={withBase(a.file)} class="font-medium text-brand-700 hover:underline dark:text-brand-300" download>
+                ⤓ {a.nome}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </aside>
+    )
+  }
+
+  <Content />
+
+  {
+    correlati.length > 0 && (
+      <section slot="dopo" class="no-print mt-14 border-t border-slate-200 pt-8 dark:border-slate-800">
+        <h2 class="mb-4 text-lg font-bold text-slate-900 dark:text-white">Altri materiali su «{d.argomento}»</h2>
+        <div class="grid gap-4 sm:grid-cols-2">
+          {correlati.map((m) => (
+            <Card
+              title={m.data.title}
+              href={`/didattica/${m.slug}/`}
+              description={m.data.description}
+              badge={ETICHETTE_TIPO[m.data.tipo]}
+            />
+          ))}
+        </div>
+      </section>
+    )
+  }
+</EntryLayout>

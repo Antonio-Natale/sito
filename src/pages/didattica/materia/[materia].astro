@@ -1,0 +1,74 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Card from '@/components/Card.astro';
+import Filtri from '@/components/Filtri.astro';
+import { MATERIE } from '@/data/site';
+import { coloreMateria } from '@/lib/colori';
+import { attributiFiltro, opzioniFiltri, perArgomento } from '@/lib/materiali';
+import { ETICHETTE_TIPO, formatClassi, formatDate, getPublished, slugify, withBase } from '@/lib/utils';
+
+export const getStaticPaths = (() =>
+  MATERIE.map((materia) => ({ params: { materia: materia.slug }, props: { materia } }))) satisfies GetStaticPaths;
+
+const { materia } = Astro.props;
+const materiali = (await getPublished('materiali')).filter((m) => m.data.materia === materia.slug);
+const argomenti = perArgomento(materiali);
+const opzioni = opzioniFiltri(materiali);
+const colore = coloreMateria(materia.slug);
+---
+
+<BaseLayout title={materia.nome} description={materia.descrizione}>
+  <a href={withBase('/didattica/')} class="no-print text-sm text-brand-600 hover:underline dark:text-brand-300">← Didattica</a>
+
+  <h1 class="mt-4 flex items-center gap-3 text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+    <span class:list={['inline-block h-3 w-3 rounded-full', colore.punto]} aria-hidden="true"></span>
+    {materia.nome}
+  </h1>
+  <p class="mt-3 text-slate-600 dark:text-slate-400">{materia.descrizione}</p>
+
+  {
+    argomenti.length > 1 && (
+      <nav aria-label="Argomenti" class="mt-6">
+        <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Argomenti</h2>
+        <ul class="mt-2 flex flex-wrap gap-2">
+          {argomenti.map(([argomento, lista]) => (
+            <li>
+              <a
+                href={`#${slugify(argomento)}`}
+                class="inline-block rounded-full border border-slate-300 px-3 py-1 text-sm hover:border-brand-400 hover:text-brand-700 dark:border-slate-700 dark:hover:border-brand-500 dark:hover:text-brand-300"
+              >
+                {argomento} <span class="text-slate-400">({lista.length})</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    )
+  }
+
+  {materiali.length > 2 && <Filtri argomenti={opzioni.argomenti} tipi={opzioni.tipi} senzaMateria />}
+  {materiali.length === 0 && <p class="mt-8 text-slate-500 dark:text-slate-400">Non ci sono ancora materiali per questa materia.</p>}
+
+  {
+    argomenti.map(([argomento, lista]) => (
+      <section data-gruppo id={slugify(argomento)} class="mt-10 scroll-mt-6">
+        <h2 class="mb-4 text-xl font-bold text-slate-900 dark:text-white">{argomento}</h2>
+        <div class="grid gap-4 sm:grid-cols-2">
+          {lista.map((m) => (
+            <Card
+              title={m.data.title}
+              href={`/didattica/${m.slug}/`}
+              description={m.data.description}
+              meta={[formatDate(m.data.data), m.data.classi.length ? `classi ${formatClassi(m.data.classi)}` : '']
+                .filter(Boolean)
+                .join(' · ')}
+              badge={ETICHETTE_TIPO[m.data.tipo]}
+              dataAttrs={attributiFiltro(m)}
+            />
+          ))}
+        </div>
+      </section>
+    ))
+  }
+</BaseLayout>

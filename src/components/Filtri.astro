@@ -1,0 +1,142 @@
+---
+// Barra di filtri per i materiali. Lavora su elementi con attributo [data-item]
+// (con data-materia, data-argomento, data-tipo, data-testo) e nasconde i
+// contenitori [data-gruppo] rimasti vuoti. Senza JavaScript si vede tutto.
+import { MATERIE } from '@/data/site';
+import { ETICHETTE_TIPO } from '@/lib/utils';
+
+interface Props {
+  argomenti: { materia: string; argomento: string }[];
+  tipi: string[];
+  /** nasconde il filtro materia (es. nella pagina di una singola materia) */
+  senzaMateria?: boolean;
+}
+
+const { argomenti, tipi, senzaMateria = false } = Astro.props;
+const materieUsate = MATERIE.filter((m) => argomenti.some((a) => a.materia === m.slug));
+const selectClass =
+  'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-brand-800';
+---
+
+<form
+  id="filtri"
+  class="no-print mt-6 hidden rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/60"
+  role="search"
+  aria-label="Filtra i materiali"
+>
+  <div class:list={['grid gap-3', senzaMateria ? 'sm:grid-cols-3' : 'sm:grid-cols-2 lg:grid-cols-4']}>
+    <label class="block">
+      <span class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Cerca</span>
+      <input type="search" name="testo" placeholder="Titolo, parola chiave…" class={selectClass} />
+    </label>
+    {
+      !senzaMateria && (
+        <label class="block">
+          <span class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Materia</span>
+          <select name="materia" class={selectClass}>
+            <option value="">Tutte</option>
+            {materieUsate.map((m) => (
+              <option value={m.slug}>{m.nome}</option>
+            ))}
+          </select>
+        </label>
+      )
+    }
+    <label class="block">
+      <span class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Argomento</span>
+      <select name="argomento" class={selectClass}>
+        <option value="">Tutti</option>
+        {
+          argomenti.map((a) => (
+            <option value={a.argomento} data-materia={a.materia}>
+              {a.argomento}
+            </option>
+          ))
+        }
+      </select>
+    </label>
+    <label class="block">
+      <span class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Tipo</span>
+      <select name="tipo" class={selectClass}>
+        <option value="">Tutti</option>
+        {tipi.map((t) => <option value={t}>{ETICHETTE_TIPO[t] ?? t}</option>)}
+      </select>
+    </label>
+  </div>
+  <div class="mt-3 flex items-center justify-between text-sm text-slate-600 dark:text-slate-400">
+    <p id="filtri-conteggio" aria-live="polite"></p>
+    <button type="reset" class="text-brand-600 hover:underline dark:text-brand-300">Azzera filtri</button>
+  </div>
+</form>
+
+<p id="filtri-vuoto" hidden class="mt-8 text-slate-500 dark:text-slate-400">
+  Nessun materiale corrisponde ai filtri scelti.
+</p>
+
+<script>
+  const form = document.getElementById('filtri') as HTMLFormElement | null;
+  if (form) {
+    form.classList.remove('hidden');
+    const items = [...document.querySelectorAll<HTMLElement>('[data-item]')];
+    const gruppi = [...document.querySelectorAll<HTMLElement>('[data-gruppo]')];
+    const conteggio = document.getElementById('filtri-conteggio')!;
+    const vuoto = document.getElementById('filtri-vuoto')!;
+    const selMateria = form.elements.namedItem('materia') as HTMLSelectElement | null;
+    const selArgomento = form.elements.namedItem('argomento') as HTMLSelectElement;
+
+    const norm = (s: string) =>
+      s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+
+    // Precompila dai parametri dell'URL (es. ?materia=storia&tipo=mappa)
+    const params = new URLSearchParams(location.search);
+    for (const [k, v] of params) {
+      const el = form.elements.namedItem(k) as HTMLInputElement | HTMLSelectElement | null;
+      if (el) el.value = v;
+    }
+
+    function aggiornaArgomenti() {
+      const materia = selMateria?.value ?? '';
+      for (const opt of selArgomento.options) {
+        if (!opt.value) continue;
+        opt.hidden = Boolean(materia) && opt.dataset.materia !== materia;
+      }
+      const scelta = selArgomento.selectedOptions[0];
+      if (scelta?.hidden) selArgomento.value = '';
+    }
+
+    function applica() {
+      aggiornaArgomenti();
+      const f = new FormData(form!);
+      const testo = norm(String(f.get('testo') ?? ''));
+      const materia = String(f.get('materia') ?? '');
+      const argomento = String(f.get('argomento') ?? '');
+      const tipo = String(f.get('tipo') ?? '');
+
+      let visibili = 0;
+      for (const el of items) {
+        const d = el.dataset;
+        const ok =
+          (!materia || d.materia === materia) &&
+          (!argomento || d.argomento === argomento) &&
+          (!tipo || d.tipo === tipo) &&
+          (!testo || norm(d.testo ?? '').includes(testo));
+        el.hidden = !ok;
+        if (ok) visibili++;
+      }
+      // dal più interno al più esterno: un gruppo è visibile se contiene elementi visibili
+      for (const g of [...gruppi].reverse()) {
+        g.hidden = !g.querySelector('[data-item]:not([hidden])');
+      }
+      const attivi = Boolean(testo || materia || argomento || tipo);
+      conteggio.textContent = attivi
+        ? `${visibili} ${visibili === 1 ? 'materiale trovato' : 'materiali trovati'}`
+        : `${items.length} materiali`;
+      vuoto.hidden = visibili > 0;
+    }
+
+    form.addEventListener('input', applica);
+    form.addEventListener('submit', (e) => e.preventDefault());
+    form.addEventListener('reset', () => setTimeout(applica));
+    applica();
+  }
+</script>

@@ -1,0 +1,133 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import CvSezione from '@/components/CvSezione.astro';
+import { SITE, MATERIE } from '@/data/site';
+import { COMPETENZE_DIGITALI, LINGUE, METODOLOGIE } from '@/data/competenze';
+import { getPublished, withBase } from '@/lib/utils';
+
+// Ordine e titoli delle sezioni: le sezioni senza voci non vengono mostrate.
+const SEZIONI = [
+  { id: 'insegnamento', titolo: 'Esperienze di insegnamento' },
+  { id: 'incarichi', titolo: 'Incarichi scolastici' },
+  { id: 'titoli', titolo: 'Titoli di studio' },
+  { id: 'formazione', titolo: 'Formazione e aggiornamento' },
+  { id: 'certificazioni', titolo: 'Certificazioni' },
+  { id: 'lavoro', titolo: 'Altre esperienze lavorative' },
+  { id: 'pubblicazioni', titolo: 'Pubblicazioni e convegni' }
+] as const;
+
+const voci = await getPublished('curriculum');
+// voci in corso prima, poi dalla più recente
+const ordina = (a: (typeof voci)[number], b: (typeof voci)[number]) =>
+  (b.data.al ? b.data.al.getTime() : Infinity) - (a.data.al ? a.data.al.getTime() : Infinity) ||
+  b.data.dal.getTime() - a.data.dal.getTime();
+
+const sezioni = SEZIONI.map((s) => ({
+  ...s,
+  voci: voci.filter((v) => v.data.sezione === s.id).sort(ordina)
+})).filter((s) => s.voci.length > 0);
+
+const haCompetenze = LINGUE.length + COMPETENZE_DIGITALI.length + METODOLOGIE.length > 0;
+---
+
+<BaseLayout title="Curriculum" description={`Curriculum professionale di ${SITE.nome}, ${SITE.ruolo}.`}>
+  <div class="cv">
+    <header class="flex flex-col gap-4 border-b border-slate-200 pb-6 sm:flex-row sm:items-end sm:justify-between dark:border-slate-800">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white print:text-2xl">{SITE.nome}</h1>
+        <p class="cv-secondario mt-1 text-lg text-slate-600 dark:text-slate-400 print:text-base">{SITE.ruolo}</p>
+        <p class="cv-secondario text-slate-600 dark:text-slate-400">{SITE.istituto}</p>
+        <p class="mt-2 text-sm">
+          <a href={`mailto:${SITE.email}`} class="text-brand-600 hover:underline dark:text-brand-300">{SITE.email}</a>
+          <span class="hidden print:inline"> · {new URL(withBase('/curriculum/'), Astro.site).href}</span>
+        </p>
+        <p class="cv-secondario mt-1 text-sm text-slate-500 dark:text-slate-400">
+          Materie: {MATERIE.map((m) => m.nome).join(', ')}
+        </p>
+      </div>
+      <button
+        id="stampa"
+        type="button"
+        class="no-print self-start rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:self-auto dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+      >
+        Stampa / Salva PDF
+      </button>
+    </header>
+
+    {
+      sezioni.length > 1 && (
+        <nav aria-label="Sezioni del curriculum" class="no-print mt-6">
+          <ul class="flex flex-wrap gap-2">
+            {sezioni.map((s) => (
+              <li>
+                <a
+                  href={`#${s.id}`}
+                  class="inline-block rounded-full border border-slate-300 px-3 py-1 text-sm hover:border-brand-400 hover:text-brand-700 dark:border-slate-700 dark:hover:border-brand-500 dark:hover:text-brand-300"
+                >
+                  {s.titolo}
+                </a>
+              </li>
+            ))}
+            {haCompetenze && (
+              <li>
+                <a
+                  href="#competenze"
+                  class="inline-block rounded-full border border-slate-300 px-3 py-1 text-sm hover:border-brand-400 hover:text-brand-700 dark:border-slate-700 dark:hover:border-brand-500 dark:hover:text-brand-300"
+                >
+                  Competenze
+                </a>
+              </li>
+            )}
+          </ul>
+        </nav>
+      )
+    }
+
+    {sezioni.map((s) => <CvSezione id={s.id} titolo={s.titolo} voci={s.voci} />)}
+
+    {
+      haCompetenze && (
+        <section id="competenze" class="avoid-break mt-10 scroll-mt-6 print:mt-6">
+          <h2 class="border-b border-slate-200 pb-2 text-xl font-bold text-slate-900 dark:border-slate-800 dark:text-white print:text-base">
+            Competenze
+          </h2>
+          <div class="mt-5 grid gap-6 sm:grid-cols-3 print:mt-3 print:grid-cols-3 print:gap-4">
+            {LINGUE.length > 0 && (
+              <div>
+                <h3 class="font-semibold text-slate-900 dark:text-slate-100">Lingue</h3>
+                <ul class="mt-2 space-y-1 text-sm text-slate-700 dark:text-slate-300">
+                  {LINGUE.map((l) => (
+                    <li>
+                      {l.lingua}: <strong>{l.livello}</strong>
+                      {l.note && <span class="cv-secondario text-slate-500 dark:text-slate-400"> ({l.note})</span>}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {COMPETENZE_DIGITALI.length > 0 && (
+              <div>
+                <h3 class="font-semibold text-slate-900 dark:text-slate-100">Competenze digitali</h3>
+                <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700 dark:text-slate-300">
+                  {COMPETENZE_DIGITALI.map((c) => <li>{c}</li>)}
+                </ul>
+              </div>
+            )}
+            {METODOLOGIE.length > 0 && (
+              <div>
+                <h3 class="font-semibold text-slate-900 dark:text-slate-100">Metodologie didattiche</h3>
+                <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700 dark:text-slate-300">
+                  {METODOLOGIE.map((c) => <li>{c}</li>)}
+                </ul>
+              </div>
+            )}
+          </div>
+        </section>
+      )
+    }
+  </div>
+</BaseLayout>
+
+<script>
+  document.getElementById('stampa')?.addEventListener('click', () => window.print());
+</script>

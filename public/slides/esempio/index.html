@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Slide di esempio</title>
+    <style>
+      html, body { margin: 0; height: 100%; font-family: system-ui, sans-serif; background: #0a1f5c; color: #fff; }
+      .slide { display: none; height: 100%; box-sizing: border-box; padding: 8vh 8vw; flex-direction: column; justify-content: center; }
+      .slide.attiva { display: flex; }
+      h1 { font-size: clamp(2rem, 6vw, 4.5rem); margin: 0 0 0.3em; }
+      p, li { font-size: clamp(1.1rem, 2.6vw, 1.8rem); line-height: 1.5; }
+      .nav { position: fixed; bottom: 1rem; right: 1.5rem; opacity: 0.6; font-size: 0.9rem; }
+    </style>
+  </head>
+  <body>
+    <section class="slide attiva">
+      <h1>Slide di esempio</h1>
+      <p>Usa le frecce ← → (o un clic) per scorrere.</p>
+    </section>
+    <section class="slide">
+      <h1>Come aggiungere slide</h1>
+      <ul>
+        <li>Crea una cartella in <code>public/slides/nome/</code></li>
+        <li>Mettici un <code>index.html</code> (anche esportato da altri strumenti)</li>
+        <li>Collegala dal materiale con <code>slides: slides/nome/</code></li>
+      </ul>
+    </section>
+    <section class="slide">
+      <h1>Fine</h1>
+      <p>Sostituisci questa presentazione con la tua.</p>
+    </section>
+    <div class="nav" id="nav"></div>
+    <script>
+      const slides = [...document.querySelectorAll('.slide')];
+      let i = 0;
+      const nav = document.getElementById('nav');
+      function mostra(n) {
+        i = Math.max(0, Math.min(slides.length - 1, n));
+        slides.forEach((s, k) => s.classList.toggle('attiva', k === i));
+        nav.textContent = `${i + 1} / ${slides.length}`;
+      }
+      document.addEventListener('keydown', (e) => {
+        if (['ArrowRight', 'PageDown', ' '].includes(e.key)) mostra(i + 1);
+        if (['ArrowLeft', 'PageUp'].includes(e.key)) mostra(i - 1);
+      });
+      document.addEventListener('click', () => mostra(i + 1));
+      mostra(0);
+    </script>
+  </body>
+</html>

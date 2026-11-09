@@ -1,0 +1,22 @@
+# dipendenze
+node_modules/
+
+# build
+dist/
+.astro/
+
+# ambiente
+.env
+.env.*
+!.env.example
+
+# sistema
+.DS_Store
+Thumbs.db
+
+# editor
+.vscode/*
+!.vscode/extensions.json
+
+# materiali privati: non devono MAI finire nel repository pubblico
+private/

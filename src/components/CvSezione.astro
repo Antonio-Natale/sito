@@ -1,0 +1,74 @@
+---
+// Una sezione del curriculum mostrata come linea del tempo.
+import type { CollectionEntry } from 'astro:content';
+import { formatPeriodo, withBase } from '@/lib/utils';
+
+interface Props {
+  id: string;
+  titolo: string;
+  voci: CollectionEntry<'curriculum'>[];
+}
+
+const { id, titolo, voci } = Astro.props;
+---
+
+<section id={id} class="mt-10 scroll-mt-6 print:mt-6">
+  <h2 class="border-b border-slate-200 pb-2 text-xl font-bold text-slate-900 dark:border-slate-800 dark:text-white print:text-base">
+    {titolo}
+  </h2>
+  <ol class="relative mt-5 space-y-6 border-l-2 border-slate-200 pl-6 dark:border-slate-800 print:mt-3 print:space-y-3 print:border-l-0 print:pl-0">
+    {
+      voci.map(({ data: v }) => (
+        <li class="avoid-break relative">
+          <span
+            class="no-print absolute -left-[31px] top-1.5 h-3 w-3 rounded-full border-2 border-white bg-brand-500 dark:border-slate-950"
+            aria-hidden="true"
+          />
+          <div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+            <h3 class="font-semibold text-slate-900 dark:text-slate-100">
+              {v.url ? (
+                <a href={v.url} target="_blank" rel="noopener" class="hover:text-brand-700 dark:hover:text-brand-300">
+                  {v.titolo}
+                </a>
+              ) : (
+                v.titolo
+              )}
+            </h3>
+            <p class="cv-secondario shrink-0 text-sm tabular-nums text-slate-500 dark:text-slate-400">
+              {formatPeriodo(v.dal, v.al)}
+            </p>
+          </div>
+          <p class="cv-secondario text-sm text-slate-600 dark:text-slate-400">
+            {v.ente}
+            {v.luogo && <span> · {v.luogo}</span>}
+          </p>
+          {v.autori && <p class="cv-secondario text-sm italic text-slate-600 dark:text-slate-400">{v.autori.join(', ')}</p>}
+          {v.descrizione && <p class="mt-2 text-sm text-slate-700 dark:text-slate-300">{v.descrizione}</p>}
+          {v.dettagli.length > 0 && (
+            <ul class="mt-2 flex flex-wrap gap-2 print:gap-x-3">
+              {v.dettagli.map((d) => (
+                <li class="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-700 dark:bg-slate-800 dark:text-slate-300 print:p-0">
+                  {d}
+                </li>
+              ))}
+            </ul>
+          )}
+          {(v.doi || v.allegato) && (
+            <p class="no-print mt-2 flex gap-4 text-sm">
+              {v.doi && (
+                <a href={`https://doi.org/${v.doi}`} target="_blank" rel="noopener" class="text-brand-600 hover:underline dark:text-brand-300">
+                  DOI
+                </a>
+              )}
+              {v.allegato && (
+                <a href={withBase(v.allegato)} class="text-brand-600 hover:underline dark:text-brand-300">
+                  Documento
+                </a>
+              )}
+            </p>
+          )}
+        </li>
+      ))
+    }
+  </ol>
+</section>

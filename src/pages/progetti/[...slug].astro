@@ -1,0 +1,40 @@
+---
+import type { GetStaticPaths } from 'astro';
+import type { CollectionEntry } from 'astro:content';
+import EntryLayout from '@/layouts/EntryLayout.astro';
+import { getMateria } from '@/data/site';
+import { formatDate, getPublished } from '@/lib/utils';
+
+export const getStaticPaths = (async () => {
+  const progetti = await getPublished('progetti');
+  return progetti.map((entry) => ({ params: { slug: entry.slug }, props: { entry } }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  entry: CollectionEntry<'progetti'>;
+}
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+const d = entry.data;
+
+const meta = [
+  d.tipo,
+  d.annoScolastico ? `a.s. ${d.annoScolastico}` : formatDate(d.data),
+  d.stato,
+  ...d.materie.map((s) => getMateria(s)?.nome ?? s)
+].filter(Boolean) as string[];
+---
+
+<EntryLayout title={d.title} description={d.description} back={{ label: 'Progetti', href: '/progetti/' }} meta={meta} tags={d.tags}>
+  <Content />
+  {
+    d.link && (
+      <p slot="dopo" class="no-print mt-10">
+        <a href={d.link} target="_blank" rel="noopener" class="rounded-lg bg-brand-600 px-4 py-2 font-medium text-white hover:bg-brand-700">
+          Visita il progetto ↗
+        </a>
+      </p>
+    )
+  }
+</EntryLayout>

@@ -1,0 +1,43 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { Content } from '@/pagine/chi-sono.md';
+import { MATERIE, SITE } from '@/data/site';
+import { coloreMateria } from '@/lib/colori';
+import { withBase } from '@/lib/utils';
+---
+
+<BaseLayout title="Chi sono" description={`Presentazione di ${SITE.nome}, ${SITE.ruolo}.`}>
+  <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Chi sono</h1>
+  <p class="mt-2 text-lg text-slate-600 dark:text-slate-400">{SITE.nome} · {SITE.istituto}</p>
+
+  <ul class="mt-4 flex flex-wrap gap-2">
+    {
+      MATERIE.map((m) => (
+        <li>
+          <a
+            href={withBase(`/didattica/materia/${m.slug}/`)}
+            class:list={['inline-block rounded-full px-3 py-1 text-sm font-medium hover:opacity-80', coloreMateria(m.slug).chip]}
+          >
+            {m.nome}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <article class="prose mt-8 max-w-none">
+    <Content />
+  </article>
+
+  <div class="mt-10 flex flex-wrap gap-3">
+    <a href={withBase('/curriculum/')} class="rounded-lg bg-brand-600 px-4 py-2 font-medium text-white hover:bg-brand-700">
+      Curriculum completo
+    </a>
+    <a
+      href={withBase('/ricevimento/')}
+      class="rounded-lg border border-slate-300 px-4 py-2 font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+    >
+      Ricevimento e contatti
+    </a>
+  </div>
+</BaseLayout>

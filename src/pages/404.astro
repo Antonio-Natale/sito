@@ -1,0 +1,15 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { withBase } from '@/lib/utils';
+---
+
+<BaseLayout title="Pagina non trovata">
+  <div class="py-16 text-center">
+    <p class="text-6xl font-bold text-brand-600 dark:text-brand-400">404</p>
+    <h1 class="mt-4 text-2xl font-bold text-slate-900 dark:text-white">Pagina non trovata</h1>
+    <p class="mt-2 text-slate-600 dark:text-slate-400">La pagina che cerchi non esiste o è stata spostata.</p>
+    <a href={withBase('/')} class="mt-6 inline-block rounded-lg bg-brand-600 px-4 py-2 font-medium text-white hover:bg-brand-700">
+      Torna alla home
+    </a>
+  </div>
+</BaseLayout>
