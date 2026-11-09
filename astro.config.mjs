@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import tailwind from '@astrojs/tailwind';
+import { MOSTRA_PROGETTI } from './src/data/site.ts';
 
 // Sito pubblicato su GitHub Pages: username.github.io/nome-repo
 // Se in futuro si passa a un dominio personale, aggiornare "site" e rimuovere "base".
@@ -12,7 +13,11 @@ export default defineConfig({
   site: SITE_URL,
   base: BASE_PATH,
   trailingSlash: 'always',
-  integrations: [mdx(), sitemap(), tailwind()],
+  integrations: [
+    mdx(),
+    sitemap({ filter: (page) => MOSTRA_PROGETTI || !page.includes('/progetti/') }),
+    tailwind()
+  ],
   markdown: {
     shikiConfig: { theme: 'github-dark' }
   }

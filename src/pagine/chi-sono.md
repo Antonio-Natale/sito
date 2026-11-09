@@ -8,5 +8,5 @@ didattica laboratoriale, uso delle tecnologie, collaborazione con i colleghi.
 
 ## Per studenti e famiglie
 
-In questo sito trovate i materiali delle lezioni, i progetti a cui partecipano
-le classi e le informazioni per il ricevimento.
+In questo sito trovate i materiali delle lezioni e le informazioni
+per il ricevimento.

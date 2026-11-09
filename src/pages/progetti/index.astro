@@ -1,7 +1,11 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Card from '@/components/Card.astro';
-import { byDateDesc, getPublished } from '@/lib/utils';
+import { MOSTRA_PROGETTI } from '@/data/site';
+import { byDateDesc, getPublished, withBase } from '@/lib/utils';
+
+// Sezione nascosta: chi apre /progetti/ viene rimandato alla home.
+if (!MOSTRA_PROGETTI) return Astro.redirect(withBase('/'));
 
 const progetti = (await getPublished('progetti')).sort(byDateDesc);
 

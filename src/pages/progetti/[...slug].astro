@@ -2,10 +2,11 @@
 import type { GetStaticPaths } from 'astro';
 import type { CollectionEntry } from 'astro:content';
 import EntryLayout from '@/layouts/EntryLayout.astro';
-import { getMateria } from '@/data/site';
+import { getMateria, MOSTRA_PROGETTI } from '@/data/site';
 import { formatDate, getPublished } from '@/lib/utils';
 
 export const getStaticPaths = (async () => {
+  if (!MOSTRA_PROGETTI) return [];
   const progetti = await getPublished('progetti');
   return progetti.map((entry) => ({ params: { slug: entry.slug }, props: { entry } }));
 }) satisfies GetStaticPaths;

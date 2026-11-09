@@ -2,13 +2,13 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Card from '@/components/Card.astro';
 import SectionHeading from '@/components/SectionHeading.astro';
-import { MATERIE, SITE } from '@/data/site';
+import { MATERIE, MOSTRA_PROGETTI, SITE } from '@/data/site';
 import { coloreMateria } from '@/lib/colori';
 import { ETICHETTE_TIPO, byDateDesc, formatDate, getPublished, withBase } from '@/lib/utils';
 
 const tuttiMateriali = await getPublished('materiali');
 const materiali = [...tuttiMateriali].sort(byDateDesc).slice(0, 4);
-const progetti = (await getPublished('progetti'))
+const progetti = (MOSTRA_PROGETTI ? await getPublished('progetti') : [])
   .sort((a, b) => Number(b.data.inEvidenza) - Number(a.data.inEvidenza) || byDateDesc(a, b))
   .slice(0, 2);
 

@@ -6,7 +6,7 @@ export const SITE = {
   ruolo: 'Docente di scuola secondaria di secondo grado',
   istituto: 'Istituto di Istruzione Superiore di Esempio',
   descrizione:
-    'Materiali didattici, progetti e curriculum. Uno spazio per studenti, famiglie e colleghi.',
+    'Materiali didattici e curriculum. Uno spazio per studenti, famiglie e colleghi.',
   // Usare l'email istituzionale: il sito è pubblico.
   email: 'nome.cognome@scuola.example.it',
   lingua: 'it'
@@ -48,6 +48,10 @@ export const RICEVIMENTO = {
   note: 'Durante il periodo degli scrutini il ricevimento è sospeso.'
 };
 
+// Sezione Progetti: false = nascosta (menu, home e pagine non vengono generate).
+// Per riattivarla basta scrivere true.
+export const MOSTRA_PROGETTI = false;
+
 export const NAV = [
   { label: 'Home', href: '/' },
   { label: 'Didattica', href: '/didattica/' },
@@ -55,7 +59,7 @@ export const NAV = [
   { label: 'Curriculum', href: '/curriculum/' },
   { label: 'Chi sono', href: '/chi-sono/' },
   { label: 'Ricevimento', href: '/ricevimento/' }
-] as const;
+].filter((item) => MOSTRA_PROGETTI || item.href !== '/progetti/');
 
 export const SOCIAL: { label: string; href: string }[] = [
   // { label: 'LinkedIn', href: 'https://www.linkedin.com/in/...' },
