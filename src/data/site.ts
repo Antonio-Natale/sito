@@ -1,10 +1,10 @@
 // Dati generali del sito: modificare qui nome, ruolo, materie, ricevimento e menu.
 
 export const SITE = {
-  titolo: 'Prof. Nome Cognome',
-  nome: 'Nome Cognome',
+  titolo: 'Prof. Antonio Natale',
+  nome: 'Antonio Natale',
   ruolo: 'Docente di scuola secondaria di secondo grado',
-  istituto: 'Istituto di Istruzione Superiore di Esempio',
+  istituto: 'Istituto Statale di Istruzione Superiore Luigi Einaudi',
   descrizione:
     'Materiali didattici e curriculum. Uno spazio per studenti, famiglie e colleghi.',
   // Usare l'email istituzionale: il sito è pubblico.
