@@ -16,20 +16,30 @@ export const SITE = {
 export type ColoreMateria = 'blu' | 'verde' | 'ambra' | 'rosa' | 'viola' | 'ciano';
 
 // Materie insegnate: lo "slug" si usa nei file dei materiali (campo "materia").
+// "argomenti": ordine in cui gli argomenti compaiono nel sito (scrivere i nomi esattamente
+// come nel campo "argomento" dei materiali). Quelli non elencati vanno in fondo, in ordine alfabetico.
 export const MATERIE = [
   {
     slug: 'informatica',
     nome: 'Informatica',
     descrizione: 'Algoritmi, programmazione, basi di dati e sviluppo del software.',
-    colore: 'blu'
+    colore: 'blu',
+    argomenti: ['Sicurezza informatica', 'Argomento A', 'Argomento B']
   },
   {
     slug: 'tpsc',
     nome: 'TPSC',
     descrizione: 'Breve descrizione della materia.',
-    colore: 'verde'
+    colore: 'verde',
+    argomenti: ['Argomento C']
   }
-] as const satisfies readonly { slug: string; nome: string; descrizione: string; colore: ColoreMateria }[];
+] as const satisfies readonly {
+  slug: string;
+  nome: string;
+  descrizione: string;
+  colore: ColoreMateria;
+  argomenti: readonly string[];
+}[];
 
 export type SlugMateria = (typeof MATERIE)[number]['slug'];
 

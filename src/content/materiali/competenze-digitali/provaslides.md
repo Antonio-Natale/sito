@@ -2,10 +2,10 @@
 title: Dispensa sicurezza informatica
 description: Una dispensa per ripassare i principali concetti.
 materia: informatica
-argomento: Argomento A
+argomento: Sicurezza informatica
 classi: [3, 4]
 data: 2025-10-05
-tipo: mappa
+tipo: slide
 tags: [ripasso, DSA]
 allegati:
   - nome: Presentazione Sicurezza informatica (PDF)

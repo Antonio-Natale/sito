@@ -1,6 +1,6 @@
 ---
 // Barra di filtri per i materiali. Lavora su elementi con attributo [data-item]
-// (con data-materia, data-argomento, data-tipo, data-testo) e nasconde i
+// (con data-materia, data-argomento, data-tipo, data-classi, data-testo) e nasconde i
 // contenitori [data-gruppo] rimasti vuoti. Senza JavaScript si vede tutto.
 import { MATERIE } from '@/data/site';
 import { ETICHETTE_TIPO } from '@/lib/utils';
@@ -8,12 +8,17 @@ import { ETICHETTE_TIPO } from '@/lib/utils';
 interface Props {
   argomenti: { materia: string; argomento: string }[];
   tipi: string[];
+  /** classi (1–5) presenti nei materiali; se vuoto il filtro classe non compare */
+  classi?: number[];
   /** nasconde il filtro materia (es. nella pagina di una singola materia) */
   senzaMateria?: boolean;
 }
 
-const { argomenti, tipi, senzaMateria = false } = Astro.props;
+const { argomenti, tipi, classi = [], senzaMateria = false } = Astro.props;
 const materieUsate = MATERIE.filter((m) => argomenti.some((a) => a.materia === m.slug));
+// numero di campi, per distribuirli bene sulle colonne
+const campi = 3 + (senzaMateria ? 0 : 1) + (classi.length > 0 ? 1 : 0);
+const colonne = { 3: 'sm:grid-cols-3', 4: 'sm:grid-cols-2 lg:grid-cols-4', 5: 'sm:grid-cols-2 lg:grid-cols-5' }[campi];
 const selectClass =
   'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-brand-800';
 ---
@@ -24,8 +29,8 @@ const selectClass =
   role="search"
   aria-label="Filtra i materiali"
 >
-  <div class:list={['grid gap-3', senzaMateria ? 'sm:grid-cols-3' : 'sm:grid-cols-2 lg:grid-cols-4']}>
-    <label class="block">
+  <div class:list={['grid gap-3', colonne]}>
+    <label class:list={['block', campi === 5 && 'sm:col-span-2 lg:col-span-1']}>
       <span class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Cerca</span>
       <input type="search" name="testo" placeholder="Titolo, parola chiave…" class={selectClass} />
     </label>
@@ -62,6 +67,19 @@ const selectClass =
         {tipi.map((t) => <option value={t}>{ETICHETTE_TIPO[t] ?? t}</option>)}
       </select>
     </label>
+    {
+      classi.length > 0 && (
+        <label class="block">
+          <span class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Classe</span>
+          <select name="classe" class={selectClass}>
+            <option value="">Tutte</option>
+            {classi.map((c) => (
+              <option value={String(c)}>{c}ª</option>
+            ))}
+          </select>
+        </label>
+      )
+    }
   </div>
   <div class="mt-3 flex items-center justify-between text-sm text-slate-600 dark:text-slate-400">
     <p id="filtri-conteggio" aria-live="polite"></p>
@@ -111,14 +129,18 @@ const selectClass =
       const materia = String(f.get('materia') ?? '');
       const argomento = String(f.get('argomento') ?? '');
       const tipo = String(f.get('tipo') ?? '');
+      const classe = String(f.get('classe') ?? '');
 
       let visibili = 0;
       for (const el of items) {
         const d = el.dataset;
+        // un materiale senza classi indicate vale per tutte le classi
+        const classiItem = (d.classi ?? '').split(' ').filter(Boolean);
         const ok =
           (!materia || d.materia === materia) &&
           (!argomento || d.argomento === argomento) &&
           (!tipo || d.tipo === tipo) &&
+          (!classe || classiItem.length === 0 || classiItem.includes(classe)) &&
           (!testo || norm(d.testo ?? '').includes(testo));
         el.hidden = !ok;
         if (ok) visibili++;
@@ -127,7 +149,7 @@ const selectClass =
       for (const g of [...gruppi].reverse()) {
         g.hidden = !g.querySelector('[data-item]:not([hidden])');
       }
-      const attivi = Boolean(testo || materia || argomento || tipo);
+      const attivi = Boolean(testo || materia || argomento || tipo || classe);
       conteggio.textContent = attivi
         ? `${visibili} ${visibili === 1 ? 'materiale trovato' : 'materiali trovati'}`
         : `${items.length} materiali`;

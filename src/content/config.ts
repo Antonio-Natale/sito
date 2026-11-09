@@ -29,6 +29,8 @@ const materiali = defineCollection({
       ])
       .default('dispensa'),
     tags: z.array(z.string()).default([]),
+    // posizione dentro l'argomento (1, 2, 3…); senza "ordine" il materiale va dopo, dal più recente
+    ordine: z.number().int().optional(),
     // file in public/ (percorso relativo, es. "documenti/scheda-1.pdf")
     // i PDF si leggono nella pagina; "scaricabile: true" mostra invece il link di download
     allegati: z

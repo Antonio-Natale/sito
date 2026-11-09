@@ -47,7 +47,7 @@ const colore = coloreMateria(materia.slug);
     )
   }
 
-  {materiali.length > 2 && <Filtri argomenti={opzioni.argomenti} tipi={opzioni.tipi} senzaMateria />}
+  {materiali.length > 2 && <Filtri argomenti={opzioni.argomenti} tipi={opzioni.tipi} classi={opzioni.classi} senzaMateria />}
   {materiali.length === 0 && <p class="mt-8 text-slate-500 dark:text-slate-400">Non ci sono ancora materiali per questa materia.</p>}
 
   {

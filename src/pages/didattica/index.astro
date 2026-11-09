@@ -8,7 +8,7 @@ import { ETICHETTE_TIPO, formatClassi, formatDate, getPublished, slugify, withBa
 
 const materiali = await getPublished('materiali');
 const gruppi = perMateria(materiali);
-const { argomenti, tipi } = opzioniFiltri(materiali);
+const { argomenti, tipi, classi } = opzioniFiltri(materiali);
 ---
 
 <BaseLayout title="Didattica" description="Dispense, slide, esercizi, mappe e materiali divisi per materia e argomento.">
@@ -34,7 +34,7 @@ const { argomenti, tipi } = opzioniFiltri(materiali);
     )
   }
 
-  {materiali.length > 0 && <Filtri argomenti={argomenti} tipi={tipi} />}
+  {materiali.length > 0 && <Filtri argomenti={argomenti} tipi={tipi} classi={classi} />}
   {materiali.length === 0 && <p class="mt-8 text-slate-500 dark:text-slate-400">Nessun materiale pubblicato.</p>}
 
   {

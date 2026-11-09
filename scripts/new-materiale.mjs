@@ -18,6 +18,13 @@ function leggiMaterie() {
   const re = /slug:\s*['"]([^'"]+)['"],\s*nome:\s*['"]([^'"]+)['"]/g;
   let m;
   while ((m = re.exec(blocco))) materie.push({ slug: m[1], nome: m[2] });
+  // argomenti ordinati di ogni materia (campo "argomenti: [...]" dopo lo slug)
+  for (let i = 0; i < materie.length; i++) {
+    const inizio = blocco.indexOf(`slug: '${materie[i].slug}'`);
+    const fine = i + 1 < materie.length ? blocco.indexOf(`slug: '${materie[i + 1].slug}'`) : blocco.length;
+    const lista = /argomenti:\s*\[([\s\S]*?)\]/.exec(blocco.slice(inizio, fine));
+    materie[i].argomenti = lista ? [...lista[1].matchAll(/'([^']*)'|"([^"]*)"/g)].map((x) => x[1] ?? x[2]) : [];
+  }
   return materie;
 }
 
@@ -30,8 +37,19 @@ try {
 
   const descrizione = await chiedi('Descrizione breve', titolo);
   const materia = await scegli('Materia', materie.map((m) => ({ valore: m.slug, etichetta: m.nome })));
+  const { argomenti } = materie.find((m) => m.slug === materia);
   let argomento = '';
+  if (argomenti.length) {
+    argomento = await scegli('Argomento', [
+      ...argomenti.map((a) => ({ valore: a, etichetta: a })),
+      { valore: '', etichetta: 'Nuovo argomento…' }
+    ]);
+  }
   while (!argomento) argomento = await chiedi('Argomento (es. "Le reti di computer")');
+  if (!argomenti.includes(argomento))
+    console.log(`  Nota: aggiungi "${argomento}" ad "argomenti" in src/data/site.ts per sceglierne la posizione.`);
+  const ordineTesto = await chiedi("Posizione dentro l'argomento: 1, 2, 3… (invio per ordinare per data)");
+  const ordine = /^\d+$/.test(ordineTesto) ? Number(ordineTesto) : undefined;
   const classiTesto = await chiedi('Classi consigliate, anni da 1 a 5 separati da virgola (invio per nessuna)');
   const classi = classiTesto
     .split(/[ ,;]+/)
@@ -53,7 +71,7 @@ argomento: ${yamlString(argomento)}
 classi: [${classi.join(', ')}]
 data: ${oggi}
 tipo: ${tipo}
-tags: []
+${ordine !== undefined ? `ordine: ${ordine}\n` : ''}tags: []
 allegati: []
 #  - nome: Scheda di esercizi
 #    file: documenti/${slug}/scheda.pdf

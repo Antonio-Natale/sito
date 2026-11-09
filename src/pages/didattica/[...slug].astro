@@ -6,7 +6,8 @@ import Card from '@/components/Card.astro';
 import VisualizzatorePdf from '@/components/VisualizzatorePdf.astro';
 import { getMateria } from '@/data/site';
 import { coloreMateria } from '@/lib/colori';
-import { ETICHETTE_TIPO, byDateDesc, formatClassi, formatDate, getPublished, withBase } from '@/lib/utils';
+import { confrontaMateriali } from '@/lib/materiali';
+import { ETICHETTE_TIPO, formatClassi, formatDate, getPublished, withBase } from '@/lib/utils';
 
 export const getStaticPaths = (async () => {
   const materiali = await getPublished('materiali');
@@ -18,7 +19,7 @@ export const getStaticPaths = (async () => {
         .filter(
           (m) => m.id !== entry.id && m.data.materia === entry.data.materia && m.data.argomento === entry.data.argomento
         )
-        .sort(byDateDesc)
+        .sort(confrontaMateriali)
         .slice(0, 4)
     }
   }));
