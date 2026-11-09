@@ -1,0 +1,263 @@
+---
+// Mostra un PDF dentro la pagina con PDF.js (pagine disegnate su <canvas>),
+// senza i pulsanti Scarica/Stampa del visualizzatore integrato del browser.
+// NB: è un deterrente, non una protezione assoluta (il sito è statico e pubblico).
+import { withBase } from '@/lib/utils';
+
+interface Props {
+  file: string; // percorso in public/, es. "documenti/scheda.pdf"
+  nome: string;
+}
+
+const { file, nome } = Astro.props;
+---
+
+<section
+  class="pdf-viewer mt-8 flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white xl:-mx-32 dark:border-slate-800 dark:bg-slate-950"
+  data-src={withBase(file)}
+>
+  <header class="flex items-center justify-between gap-3 border-b border-slate-200 px-3 py-2 sm:px-4 dark:border-slate-800">
+    <h2 class="min-w-0 truncate text-sm font-semibold text-slate-800 dark:text-slate-100">{nome}</h2>
+    <div class="flex shrink-0 items-center gap-1 text-sm">
+      <span data-pagina class="mr-2 hidden tabular-nums text-slate-500 sm:inline"></span>
+      <button type="button" data-zoom="-1" class="btn" aria-label="Riduci">−</button>
+      <span data-zoom-label class="w-11 text-center tabular-nums text-slate-500">100%</span>
+      <button type="button" data-zoom="1" class="btn" aria-label="Ingrandisci">+</button>
+      <button type="button" data-fs class="btn ml-1" aria-label="Schermo intero" title="Schermo intero">⛶</button>
+    </div>
+  </header>
+  <div data-pages class="pdf-pages relative h-[75vh] min-h-[22rem] overflow-auto bg-slate-100 p-2 sm:h-[80vh] sm:p-4 dark:bg-slate-900">
+    <p data-stato class="py-8 text-center text-sm text-slate-500">Caricamento del documento…</p>
+  </div>
+  <p class="pdf-print-msg hidden p-4 text-sm">Questo documento è consultabile solo online sul sito.</p>
+</section>
+
+<style>
+  .pdf-viewer {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+  .btn {
+    border-radius: 0.375rem;
+    padding: 0.25rem 0.55rem;
+    line-height: 1.25rem;
+  }
+  .btn:hover {
+    background: rgb(148 163 184 / 0.2);
+  }
+  .pdf-pages :global(canvas) {
+    display: block;
+    margin: 0 auto 0.75rem;
+    background: white;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.15);
+    pointer-events: none;
+  }
+  /* Schermo intero: nativo (:fullscreen) o simulato (.pdf-fs, es. su iPhone) */
+  .pdf-viewer:fullscreen,
+  .pdf-viewer.pdf-fs {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    margin: 0;
+    border-radius: 0;
+    border: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .pdf-viewer:fullscreen .pdf-pages,
+  .pdf-viewer.pdf-fs .pdf-pages {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 0;
+  }
+  @media print {
+    .pdf-viewer header,
+    .pdf-pages {
+      display: none !important;
+    }
+    .pdf-print-msg {
+      display: block !important;
+    }
+  }
+</style>
+
+<script>
+  // Build "legacy": funziona anche su browser meno recenti (Safari/iPad, Chrome datati).
+  import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist';
+  import workerUrl from 'pdfjs-dist/legacy/build/pdf.worker.min.mjs?url';
+
+  const ZOOM = [0.5, 0.75, 1, 1.25, 1.5, 2, 3];
+
+  function errore(box: HTMLElement, e: unknown) {
+    console.error('[VisualizzatorePdf]', e);
+    const p = document.createElement('p');
+    p.className = 'py-8 text-center text-sm text-red-600';
+    p.textContent = `Impossibile caricare il documento (${e instanceof Error ? e.message : String(e)}).`;
+    box.replaceChildren(p);
+  }
+
+  async function avvia(root: HTMLElement) {
+    const src = root.dataset.src!;
+    const box = root.querySelector<HTMLElement>('[data-pages]')!;
+    const label = root.querySelector<HTMLElement>('[data-zoom-label]')!;
+    const indicatore = root.querySelector<HTMLElement>('[data-pagina]')!;
+    const btnFs = root.querySelector<HTMLButtonElement>('[data-fs]')!;
+    let zoomIdx = 2;
+
+    root.addEventListener('contextmenu', (e) => e.preventDefault());
+    root.addEventListener('dragstart', (e) => e.preventDefault());
+
+    let doc: PDFDocumentProxy;
+    try {
+      const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
+      pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
+      const attesa = new Promise<never>((_, no) => setTimeout(() => no(new Error('tempo scaduto')), 30000));
+      doc = await Promise.race([pdfjs.getDocument({ url: src }).promise, attesa]);
+    } catch (e) {
+      errore(box, e);
+      return;
+    }
+
+    // proporzione altezza/larghezza di ogni pagina (inizialmente quella della prima)
+    const primo = (await doc.getPage(1)).getViewport({ scale: 1 });
+    const proporzioni: number[] = Array(doc.numPages + 1).fill(primo.height / primo.width);
+    const tasks = new Map<HTMLCanvasElement, RenderTask>();
+    const canvases: HTMLCanvasElement[] = [];
+
+    const larghezza = () => Math.max(200, box.clientWidth - 16) * ZOOM[zoomIdx];
+
+    function dimensiona(c: HTMLCanvasElement) {
+      const w = larghezza();
+      c.style.width = `${w}px`;
+      c.style.height = `${w * proporzioni[Number(c.dataset.n)]}px`;
+    }
+
+    async function disegna(c: HTMLCanvasElement) {
+      const chiave = `${zoomIdx}:${box.clientWidth}`;
+      if (c.dataset.fatto === chiave) return;
+      c.dataset.fatto = chiave;
+      tasks.get(c)?.cancel();
+      const n = Number(c.dataset.n);
+      const page = await doc.getPage(n);
+      const base = page.getViewport({ scale: 1 });
+      if (proporzioni[n] !== base.height / base.width) {
+        proporzioni[n] = base.height / base.width;
+        dimensiona(c);
+      }
+      const dpr = window.devicePixelRatio || 1;
+      const vp = page.getViewport({ scale: (larghezza() / base.width) * dpr });
+      // disegno su un canvas temporaneo, così la pagina non "lampeggia" in bianco durante lo zoom
+      const tmp = document.createElement('canvas');
+      tmp.width = vp.width;
+      tmp.height = vp.height;
+      const task = page.render({ canvasContext: tmp.getContext('2d')!, viewport: vp });
+      tasks.set(c, task);
+      try {
+        await task.promise;
+      } catch {
+        return; // annullato da uno zoom successivo
+      }
+      if (c.dataset.fatto !== chiave) return;
+      c.width = tmp.width;
+      c.height = tmp.height;
+      c.getContext('2d')!.drawImage(tmp, 0, 0);
+    }
+
+    const osservatore = new IntersectionObserver(
+      (voci) => voci.forEach((x) => x.isIntersecting && disegna(x.target as HTMLCanvasElement)),
+      { root: box, rootMargin: '800px 0px' }
+    );
+
+    function aggiornaIndicatore() {
+      const meta = box.scrollTop + box.clientHeight / 3;
+      const c = canvases.find((x) => x.offsetTop + x.offsetHeight > meta) ?? canvases[canvases.length - 1];
+      indicatore.textContent = `${c.dataset.n} / ${doc.numPages}`;
+    }
+
+    // Ricalcola le dimensioni mantenendo il punto di lettura (verticale e orizzontale).
+    function ridisponi() {
+      // ancora: pagina in cima al riquadro + quanto ne è già stato letto
+      const top = box.scrollTop;
+      const ancora = canvases.find((x) => x.offsetTop + x.offsetHeight > top);
+      const fy = ancora && ancora.offsetHeight ? (top - ancora.offsetTop) / ancora.offsetHeight : 0;
+      const fx = box.scrollWidth ? (box.scrollLeft + box.clientWidth / 2) / box.scrollWidth : 0.5;
+      canvases.forEach(dimensiona);
+      if (ancora) box.scrollTop = ancora.offsetTop + fy * ancora.offsetHeight;
+      box.scrollLeft = fx * box.scrollWidth - box.clientWidth / 2;
+      label.textContent = `${Math.round(ZOOM[zoomIdx] * 100)}%`;
+      // ri-osservare fa partire subito il disegno delle pagine visibili
+      canvases.forEach((c) => {
+        osservatore.unobserve(c);
+        osservatore.observe(c);
+      });
+      aggiornaIndicatore();
+    }
+
+    box.replaceChildren();
+    for (let n = 1; n <= doc.numPages; n++) {
+      const c = document.createElement('canvas');
+      c.dataset.n = String(n);
+      canvases.push(c);
+      box.appendChild(c);
+    }
+    ridisponi();
+    box.addEventListener('scroll', aggiornaIndicatore, { passive: true });
+
+    root.querySelectorAll<HTMLButtonElement>('[data-zoom]').forEach((b) =>
+      b.addEventListener('click', () => {
+        const nuovo = Math.min(ZOOM.length - 1, Math.max(0, zoomIdx + Number(b.dataset.zoom)));
+        if (nuovo !== zoomIdx) {
+          zoomIdx = nuovo;
+          ridisponi();
+        }
+      })
+    );
+
+    // Ridisegna quando cambia la larghezza (rotazione del telefono, schermo intero, finestra).
+    let ultimaLarghezza = box.clientWidth;
+    let timer: number | undefined;
+    new ResizeObserver(() => {
+      if (box.clientWidth === ultimaLarghezza) return;
+      ultimaLarghezza = box.clientWidth;
+      clearTimeout(timer);
+      timer = window.setTimeout(ridisponi, 150);
+    }).observe(box);
+
+    // Schermo intero: API nativa se disponibile, altrimenti riquadro a tutta pagina.
+    const nativo = !!root.requestFullscreen && document.fullscreenEnabled;
+    const attivo = () => (nativo ? document.fullscreenElement === root : root.classList.contains('pdf-fs'));
+    const aggiornaBtn = () => {
+      btnFs.textContent = attivo() ? '✕' : '⛶';
+      btnFs.title = btnFs.ariaLabel = attivo() ? 'Esci da schermo intero' : 'Schermo intero';
+    };
+    btnFs.addEventListener('click', async () => {
+      if (nativo) {
+        if (attivo()) await document.exitFullscreen();
+        else await root.requestFullscreen().catch(() => root.classList.add('pdf-fs'));
+      } else {
+        root.classList.toggle('pdf-fs');
+        document.documentElement.style.overflow = attivo() ? 'hidden' : '';
+      }
+      aggiornaBtn();
+    });
+    document.addEventListener('fullscreenchange', aggiornaBtn);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && root.classList.contains('pdf-fs')) {
+        root.classList.remove('pdf-fs');
+        document.documentElement.style.overflow = '';
+        aggiornaBtn();
+      }
+    });
+  }
+
+  const viewers = document.querySelectorAll<HTMLElement>('.pdf-viewer');
+  viewers.forEach((v) => avvia(v).catch((e) => console.error('[VisualizzatorePdf]', e)));
+
+  if (viewers.length) {
+    // Scoraggia Ctrl/Cmd+S (salva) e Ctrl/Cmd+P (stampa) sulle pagine con PDF.
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && ['s', 'p'].includes(e.key.toLowerCase())) e.preventDefault();
+    });
+  }
+</script>

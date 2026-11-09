@@ -3,6 +3,7 @@ import type { GetStaticPaths } from 'astro';
 import type { CollectionEntry } from 'astro:content';
 import EntryLayout from '@/layouts/EntryLayout.astro';
 import Card from '@/components/Card.astro';
+import VisualizzatorePdf from '@/components/VisualizzatorePdf.astro';
 import { getMateria } from '@/data/site';
 import { coloreMateria } from '@/lib/colori';
 import { ETICHETTE_TIPO, byDateDesc, formatClassi, formatDate, getPublished, withBase } from '@/lib/utils';
@@ -33,6 +34,10 @@ const { Content } = await entry.render();
 const d = entry.data;
 const materia = getMateria(d.materia)!;
 
+const isPdf = (f: string) => f.toLowerCase().endsWith('.pdf');
+const pdfIncorporati = d.allegati.filter((a) => !a.scaricabile && isPdf(a.file));
+const link = d.allegati.filter((a) => a.scaricabile || !isPdf(a.file));
+
 const meta = [
   d.argomento,
   ETICHETTE_TIPO[d.tipo],
@@ -57,28 +62,37 @@ const meta = [
   </a>
 
   {
-    (d.allegati.length > 0 || d.slides) && (
+    link.length > 0 && (
       <aside slot="prima" class="mt-6 rounded-xl border border-brand-100 bg-brand-50/50 p-5 dark:border-brand-900 dark:bg-brand-950/40">
         <h2 class="text-sm font-semibold uppercase tracking-wider text-brand-700 dark:text-brand-300">Risorse</h2>
         <ul class="mt-3 space-y-2">
-          {d.slides && (
+          {link.map((a) => (
             <li>
-              <a href={withBase(d.slides)} class="font-medium text-brand-700 hover:underline dark:text-brand-300" target="_blank">
-                ▶ Apri le slide
-              </a>
-            </li>
-          )}
-          {d.allegati.map((a) => (
-            <li>
-              <a href={withBase(a.file)} class="font-medium text-brand-700 hover:underline dark:text-brand-300" download>
-                ⤓ {a.nome}
-              </a>
+              {a.scaricabile ? (
+                <a href={withBase(a.file)} class="font-medium text-brand-700 hover:underline dark:text-brand-300" download>
+                  ⤓ {a.nome}
+                </a>
+              ) : (
+                <a href={withBase(a.file)} class="font-medium text-brand-700 hover:underline dark:text-brand-300" target="_blank" rel="noopener">
+                  ▸ {a.nome}
+                </a>
+              )}
             </li>
           ))}
         </ul>
       </aside>
     )
   }
+
+  {
+    d.slides && (
+      <section slot="prima" class="mt-8 overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
+        <iframe src={withBase(d.slides)} title={`Slide: ${d.title}`} class="aspect-video w-full bg-white" allowfullscreen loading="lazy" />
+      </section>
+    )
+  }
+
+  {pdfIncorporati.map((a) => <VisualizzatorePdf slot="prima" file={a.file} nome={a.nome} />)}
 
   <Content />
 

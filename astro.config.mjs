@@ -20,5 +20,10 @@ export default defineConfig({
   ],
   markdown: {
     shikiConfig: { theme: 'github-dark' }
+  },
+  vite: {
+    // PDF.js non va pre-impacchettato da Vite in sviluppo, altrimenti il visualizzatore
+    // resta fermo su "Caricamento del documento…" con `npm run dev`.
+    optimizeDeps: { exclude: ['pdfjs-dist'] }
   }
 });

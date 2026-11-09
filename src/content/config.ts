@@ -30,7 +30,10 @@ const materiali = defineCollection({
       .default('dispensa'),
     tags: z.array(z.string()).default([]),
     // file in public/ (percorso relativo, es. "documenti/scheda-1.pdf")
-    allegati: z.array(z.object({ nome: z.string(), file: z.string() })).default([]),
+    // i PDF si leggono nella pagina; "scaricabile: true" mostra invece il link di download
+    allegati: z
+      .array(z.object({ nome: z.string(), file: z.string(), scaricabile: z.boolean().default(false) }))
+      .default([]),
     // presentazione HTML in public/slides/<nome>/ (es. "slides/esempio/")
     slides: z.string().optional(),
     draft: z.boolean().default(false)
