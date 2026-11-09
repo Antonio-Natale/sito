@@ -64,22 +64,70 @@ try {
 
   const oggi = new Date().toISOString().slice(0, 10);
   const contenuto = `---
+# ── Intestazione del materiale ─────────────────────────────────────────
+# Le righe che iniziano con # sono commenti: il sito le ignora.
+# Rispetta i rientri (spazi, non tabulazioni) e i due punti dopo ogni campo.
 title: ${yamlString(titolo)}
 description: ${yamlString(descrizione)}
 materia: ${materia}
+# argomento: scritto esattamente come in "argomenti" di src/data/site.ts
 argomento: ${yamlString(argomento)}
+# classi: anni da 1 a 5, es. [3, 4]; [] = adatto a tutte le classi
 classi: [${classi.join(', ')}]
 data: ${oggi}
+# tipo: ${TIPI.join(', ')}
 tipo: ${tipo}
-${ordine !== undefined ? `ordine: ${ordine}\n` : ''}tags: []
-allegati: []
-#  - nome: Scheda di esercizi
-#    file: documenti/${slug}/scheda.pdf
+# ordine: posizione dentro l'argomento (1, 2, 3…); senza, si ordina per data
+${ordine !== undefined ? '' : '# '}ordine: ${ordine ?? 1}
+# tags: parole chiave per la ricerca, es. [ripasso, DSA]
+tags: []
+
+# ALLEGATI — per aggiungere PDF, togli il # SOLO dalle righe con "allegati",
+# "- nome" e "file". I file vanno in public/documenti/${slug}/
+# I PDF si leggono nella pagina e non si scaricano; per permettere il download
+# di un file aggiungi sotto il suo "file" la riga "    scaricabile: true".
+# allegati:
+#   - nome: Presentazione
+#     file: documenti/${slug}/nome-file.pdf
+#   - nome: Scheda di esercizi
+#     file: documenti/${slug}/altro-file.pdf
+
+# SLIDE HTML (cartella in public/slides/${slug}/ con dentro index.html):
 # slides: slides/${slug}/
+
+# draft: true = bozza, visibile solo con "npm run dev"; false = pubblicato
 draft: ${bozza}
 ---
 
-Scrivi qui il contenuto del materiale.
+Scrivi qui il contenuto del materiale e cancella gli esempi qui sotto che non ti servono.
+
+## Un titolo di sezione
+
+Testo normale, con parole in **grassetto** e in *corsivo*.
+
+- un elenco puntato
+- un altro punto
+
+1. un elenco numerato
+2. secondo passo
+
+| Termine | Significato |
+| ------- | ----------- |
+| Esempio | Spiegazione breve |
+
+> Un riquadro di citazione o di avviso.
+
+<!--
+IMMAGINE: metti il file in public/documenti/${slug}/, poi copia la riga qui sotto
+fuori da questo commento e cambia il nome del file. Il percorso deve iniziare con /sito/
+(non usare ../ : il sito cercherebbe l'immagine nel posto sbagliato e non si pubblicherebbe).
+
+![Descrizione dell'immagine](/sito/documenti/${slug}/immagine.png)
+-->
+
+Link a una pagina esterna: [testo del link](https://www.esempio.it)
+
+Link a un altro materiale del sito: [titolo](../nome-altro-materiale/)
 `;
 
   mkdirSync(DIR, { recursive: true });
@@ -88,6 +136,7 @@ Scrivi qui il contenuto del materiale.
 
   console.log(`\n✔ Creato src/content/materiali/${slug}.md`);
   console.log(`✔ Cartella allegati: public/documenti/${slug}/`);
+  console.log('  Apri il file: le istruzioni per allegati, immagini e link sono nei commenti.');
   if (bozza) console.log('  (bozza: visibile solo con "npm run dev"; imposta draft: false per pubblicarlo)');
 } catch (e) {
   console.error(`✘ ${e.message}`);

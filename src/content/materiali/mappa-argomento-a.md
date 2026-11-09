@@ -12,5 +12,5 @@ tags: [ripasso, DSA]
 Descrivi qui la mappa o inserisci un'immagine:
 
 ```md
-![Mappa concettuale](../../documenti/mappa-argomento-a.png)
+![Mappa concettuale](/sito/documenti/mappa-argomento-a.png)
 ```
