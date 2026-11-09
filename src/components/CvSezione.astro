@@ -1,7 +1,11 @@
 ---
 // Una sezione del curriculum mostrata come linea del tempo.
 import type { CollectionEntry } from 'astro:content';
+import VisualizzatorePdf from './VisualizzatorePdf.astro';
 import { formatPeriodo, withBase } from '@/lib/utils';
+
+// i PDF si leggono nella pagina (pannello "Visualizza documento"), senza download
+const isPdf = (f: string) => f.toLowerCase().endsWith('.pdf');
 
 interface Props {
   id: string;
@@ -53,19 +57,25 @@ const { id, titolo, voci } = Astro.props;
               ))}
             </ul>
           )}
-          {(v.doi || v.allegato) && (
+          {(v.doi || (v.allegato && !isPdf(v.allegato))) && (
             <p class="no-print mt-2 flex gap-4 text-sm">
               {v.doi && (
                 <a href={`https://doi.org/${v.doi}`} target="_blank" rel="noopener" class="text-brand-600 hover:underline dark:text-brand-300">
                   DOI
                 </a>
               )}
-              {v.allegato && (
-                <a href={withBase(v.allegato)} class="text-brand-600 hover:underline dark:text-brand-300">
+              {v.allegato && !isPdf(v.allegato) && (
+                <a href={withBase(v.allegato)} target="_blank" rel="noopener" class="text-brand-600 hover:underline dark:text-brand-300">
                   Documento
                 </a>
               )}
             </p>
+          )}
+          {v.allegato && isPdf(v.allegato) && (
+            <details class="no-print mt-2 text-sm">
+              <summary class="cursor-pointer text-brand-600 hover:underline dark:text-brand-300">Visualizza documento</summary>
+              <VisualizzatorePdf file={v.allegato} nome={v.titolo} compatto consentiStampa />
+            </details>
           )}
         </li>
       ))
