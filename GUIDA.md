@@ -15,19 +15,20 @@ materiali didattici, pubblicazione e soluzione dei problemi più comuni.
 1. [Come funziona, in breve](#1-come-funziona-in-breve)
 2. [Strumenti e prima configurazione](#2-strumenti-e-prima-configurazione)
 3. [Il ciclo di lavoro](#3-il-ciclo-di-lavoro)
-4. [Dove si trova ogni cosa](#4-dove-si-trova-ogni-cosa)
-5. [Dati generali del sito](#5-dati-generali-del-sito)
-6. [Pagina "Chi sono"](#6-pagina-chi-sono)
-7. [Curriculum](#7-curriculum)
-8. [Materiali didattici](#8-materiali-didattici)
-9. [Allegati, immagini e slide](#9-allegati-immagini-e-slide)
-10. [Sezione Progetti](#10-sezione-progetti)
-11. [Scrivere in Markdown](#11-scrivere-in-markdown)
-12. [Pubblicare le modifiche](#12-pubblicare-le-modifiche)
-13. [Lavorare da un altro computer o dal browser](#13-lavorare-da-un-altro-computer-o-dal-browser)
-14. [Errori comuni e soluzioni](#14-errori-comuni-e-soluzioni)
-15. [Privacy: cosa non pubblicare](#15-privacy-cosa-non-pubblicare)
-16. [Promemoria rapido](#16-promemoria-rapido)
+4. [Gli script disponibili](#4-gli-script-disponibili)
+5. [Dove si trova ogni cosa](#5-dove-si-trova-ogni-cosa)
+6. [Dati generali del sito](#6-dati-generali-del-sito)
+7. [Pagina "Chi sono"](#7-pagina-chi-sono)
+8. [Curriculum](#8-curriculum)
+9. [Materiali didattici](#9-materiali-didattici)
+10. [Allegati, immagini e slide](#10-allegati-immagini-e-slide)
+11. [Sezione Progetti](#11-sezione-progetti)
+12. [Scrivere in Markdown](#12-scrivere-in-markdown)
+13. [Pubblicare le modifiche](#13-pubblicare-le-modifiche)
+14. [Lavorare da un altro computer o dal browser](#14-lavorare-da-un-altro-computer-o-dal-browser)
+15. [Errori comuni e soluzioni](#15-errori-comuni-e-soluzioni)
+16. [Privacy: cosa non pubblicare](#16-privacy-cosa-non-pubblicare)
+17. [Promemoria rapido](#17-promemoria-rapido)
 
 ---
 
@@ -36,7 +37,7 @@ materiali didattici, pubblicazione e soluzione dei problemi più comuni.
 - Il sito è fatto con **Astro**: i contenuti sono semplici file di testo (`.md`, `.yaml`, `.ts`)
   che Astro trasforma in pagine web.
 - Il codice è su **GitHub**. Ogni volta che invii una modifica (*push*), GitHub ricostruisce
-  e ripubblica il sito da solo in 1–2 minuti.
+  e ripubblica il sito da solo in pochi minuti.
 - Se una modifica contiene un errore, la pubblicazione si ferma e **online resta la versione
   precedente**: il sito non si rompe.
 
@@ -66,15 +67,16 @@ npm install
 
 ## 3. Il ciclo di lavoro
 
-Ogni modifica segue sempre gli stessi quattro passi:
+Ogni modifica segue sempre gli stessi passi:
 
 ```
-1. npm run dev          → avvia l'anteprima su http://localhost:4321/sito/
-2. modifichi i file     → l'anteprima si aggiorna da sola
-3. npm run build        → controllo finale (facoltativo ma consigliato)
-4. git add -A
+1. npm run new:materiale  → (se aggiungi un materiale) crea la scheda già compilata
+2. npm run dev            → avvia l'anteprima su http://localhost:4321/sito/
+3. modifichi i file       → l'anteprima si aggiorna da sola
+4. npm run build          → controllo finale (facoltativo ma consigliato)
+5. git add -A
    git commit -m "Cosa ho cambiato"
-   git push             → dopo 1–2 minuti il sito online è aggiornato
+   git push               → dopo qualche minuto il sito online è aggiornato
 ```
 
 - L'anteprima resta attiva finché il terminale è aperto; per fermarla premi `Ctrl+C`.
@@ -83,13 +85,134 @@ Ogni modifica segue sempre gli stessi quattro passi:
 
 ---
 
-## 4. Dove si trova ogni cosa
+## 4. Gli script disponibili
+
+Gli script sono comandi già pronti del progetto. Si lanciano dal terminale, nella cartella
+del sito, scrivendo `npm run` seguito dal nome.
+
+### Riepilogo
+
+| Comando | A cosa serve | Quando usarlo |
+|---|---|---|
+| `npm run new:materiale` | Crea un nuovo materiale didattico | Ogni volta che aggiungi un materiale |
+| `npm run new:cv` | Crea una nuova voce del curriculum | Ogni volta che aggiungi una voce al CV |
+| `npm run dev` | Anteprima del sito sul tuo computer | Mentre scrivi e modifichi |
+| `npm run start` | Uguale a `npm run dev` | — |
+| `npm run build` | Controlla tutto il sito e lo prepara per la pubblicazione | Prima di pubblicare |
+| `npm run preview` | Mostra la versione preparata da `build`, identica a quella online | Dopo `build`, per un controllo finale |
+| `npm run astro` | Accesso diretto agli strumenti di Astro | Di solito mai |
+
+**Pubblicare non è uno script:** il sito va online da solo dopo `git push`
+(vedi [sezione 13](#13-pubblicare-le-modifiche)).
+
+### `npm run new:materiale` — nuovo materiale didattico
+
+Fa alcune domande e crea la scheda del materiale già nel formato giusto.
+
+```
+npm run new:materiale
+npm run new:materiale -- "Le reti di computer"     ← con il titolo già indicato
+```
+
+Le domande, in ordine:
+
+| Domanda | Cosa rispondere |
+|---|---|
+| Titolo | Il titolo del materiale (se non l'hai scritto nel comando) |
+| Descrizione breve | Una riga; invio = uguale al titolo |
+| Materia | Il numero della materia nell'elenco |
+| Argomento | Il numero di un argomento già previsto in `site.ts`, oppure «Nuovo argomento…» e poi il nome |
+| Posizione dentro l'argomento | 1, 2, 3…; invio = ordine per data |
+| Classi | Anni da 1 a 5 separati da virgola, es. `3, 4`; invio = adatto a tutte le classi |
+| Tipo | Il numero del tipo (dispensa, slide, esercizi…); invio = dispensa |
+| Salvare come bozza? | `s` = bozza, visibile solo in anteprima; `n` = pubblicato al prossimo push |
+
+Alla fine crea:
+- la scheda `src/content/materiali/<nome>.md` (il nome deriva dal titolo);
+- la cartella vuota `public/documenti/<nome>/` per i PDF e le immagini.
+
+**Apri la scheda creata:** contiene un commento accanto a ogni campo, gli esempi già pronti
+per allegati e slide (basta togliere i `#`) e alcuni esempi di formattazione nel testo da
+cancellare o modificare. Se scegli un argomento nuovo, lo script ti ricorda di aggiungerlo
+all'elenco `argomenti` in `site.ts` (vedi [sezione 6](#6-dati-generali-del-sito)).
+
+> Lo script crea la scheda direttamente in `src/content/materiali/`. Se preferisci
+> organizzare i materiali in sottocartelle (es. `competenze-digitali/`), spostala tu:
+> l'indirizzo della pagina conterrà anche il nome della cartella.
+
+### `npm run new:cv` — nuova voce del curriculum
+
+```
+npm run new:cv
+```
+
+| Domanda | Cosa rispondere |
+|---|---|
+| Sezione | Il numero della sezione (insegnamento, titoli, certificazioni…) |
+| Titolo | Es. «Docente di Informatica», «Laurea magistrale in…» |
+| Ente | Scuola, università, ente certificatore… |
+| Luogo | Facoltativo; invio per saltare |
+| Dal | `AAAA-MM` (vanno bene anche `AAAA` o `AAAA-MM-GG`) |
+| Al | `AAAA-MM`; **`=`** se è una data sola (titoli, certificazioni); invio se è ancora in corso |
+| Descrizione breve | Facoltativa |
+| Dettagli | Informazioni brevi separate da `;`, es. `Classe di concorso A041; 25 ore` |
+| Autori, DOI | Solo per la sezione *pubblicazioni* |
+| Salvare come bozza? | Invio = no |
+
+Crea il file `src/content/curriculum/<sezione>-<titolo>.yaml`. Anche qui i campi facoltativi
+non compilati (luogo, link, allegato…) restano nel file come esempi commentati: togli il `#`
+per usarli.
+
+### `npm run dev` — anteprima mentre lavori
+
+```
+npm run dev
+```
+
+- Apri **http://localhost:4321/sito/** nel browser.
+- Ogni volta che salvi un file la pagina si aggiorna da sola.
+- Mostra **anche le bozze** (`draft: true`).
+- Per fermarla: `Ctrl+C` nel terminale.
+
+### `npm run build` — controllo prima di pubblicare
+
+```
+npm run build
+```
+
+Controlla tutti i file (campi mancanti, date sbagliate, errori di scrittura nelle
+intestazioni) e prepara il sito nella cartella `dist/`.
+
+- Se finisce con `Complete!` e `0 errors` puoi pubblicare tranquillo.
+- Se c'è un errore, il messaggio indica **file e riga** (vedi [sezione 15](#15-errori-comuni-e-soluzioni)).
+
+È lo stesso controllo che fa GitHub prima di pubblicare: farlo prima evita sorprese.
+
+### `npm run preview` — il sito esattamente come andrà online
+
+```
+npm run build
+npm run preview
+```
+
+Mostra la versione preparata da `build` su **http://localhost:4321/sito/**: è identica a
+quella che verrà pubblicata, **senza bozze**. Utile per un ultimo controllo. Si ferma con
+`Ctrl+C`.
+
+### `npm run astro` — uso avanzato
+
+Dà accesso ai comandi di Astro (es. `npm run astro -- check`). Per aggiornare i contenuti
+non serve.
+
+---
+
+## 5. Dove si trova ogni cosa
 
 ```
 Sito Web/
 ├── src/
 │   ├── data/
-│   │   ├── site.ts            ← nome, istituto, email, materie, ricevimento, menu
+│   │   ├── site.ts            ← nome, istituto, email, materie e argomenti, ricevimento, menu
 │   │   └── competenze.ts      ← lingue, competenze digitali, metodologie (curriculum)
 │   ├── pagine/
 │   │   └── chi-sono.md        ← testo della pagina "Chi sono"
@@ -98,8 +221,9 @@ Sito Web/
 │       ├── curriculum/        ← un file .yaml per ogni voce del curriculum
 │       └── progetti/          ← una scheda .md per ogni progetto (sezione nascosta)
 ├── public/
-│   ├── documenti/             ← PDF e altri allegati, una cartella per materiale
+│   ├── documenti/             ← PDF, immagini e altri allegati, una cartella per materiale
 │   └── slides/                ← presentazioni HTML, una cartella per presentazione
+├── scripts/                   ← gli script new:materiale e new:cv
 ├── private/                   ← file personali: NON viene mai pubblicata
 └── GUIDA.md                   ← questa guida
 ```
@@ -109,7 +233,7 @@ codice del sito: per aggiornare i contenuti non serve toccarle.
 
 ---
 
-## 5. Dati generali del sito
+## 6. Dati generali del sito
 
 File: **`src/data/site.ts`**
 
@@ -131,12 +255,18 @@ export const SITE = {
 > apostrofo scrivilo `\'` (es. `'Istituto d\'Istruzione Superiore'`), oppure racchiudi
 > il testo tra virgolette doppie: `"Istituto d'Istruzione Superiore"`.
 
-### Materie
+### Materie e ordine degli argomenti
 
 ```ts
 export const MATERIE = [
-  { slug: 'informatica', nome: 'Informatica', descrizione: '...', colore: 'blu' },
-  { slug: 'tpsc',        nome: 'TPSC',        descrizione: '...', colore: 'verde' }
+  {
+    slug: 'informatica',
+    nome: 'Informatica',
+    descrizione: '...',
+    colore: 'blu',
+    argomenti: ['Sicurezza informatica', 'Reti', 'Basi di dati']
+  },
+  ...
 ]
 ```
 
@@ -145,6 +275,10 @@ export const MATERIE = [
   Solo minuscole, numeri e trattini. **Non cambiarlo** se ci sono già materiali che lo usano.
 - `nome` e `descrizione`: si possono cambiare liberamente.
 - `colore`: uno tra `blu`, `verde`, `ambra`, `rosa`, `viola`, `ciano`.
+- `argomenti`: **l'ordine in cui gli argomenti compaiono sul sito** (pagina della materia e
+  filtro «Argomento»). I nomi vanno scritti **esattamente** come nel campo `argomento` dei
+  materiali. Un argomento non elencato compare lo stesso, in fondo, in ordine alfabetico.
+  `npm run new:materiale` propone questo elenco quando scegli l'argomento.
 - Per aggiungere una materia copia un blocco `{ ... },` e modificalo.
 
 ### Ricevimento
@@ -175,17 +309,17 @@ Le righe che iniziano con `//` sono commenti e vengono ignorate: per attivarle t
 
 ---
 
-## 6. Pagina "Chi sono"
+## 7. Pagina "Chi sono"
 
 File: **`src/pagine/chi-sono.md`**
 
-Scrivi il testo in Markdown (vedi [sezione 11](#11-scrivere-in-markdown)). I titoli con `##`
+Scrivi il testo in Markdown (vedi [sezione 12](#12-scrivere-in-markdown)). I titoli con `##`
 diventano i paragrafi della pagina. Nome, materie e contatti vengono aggiunti
 automaticamente da `site.ts`.
 
 ---
 
-## 7. Curriculum
+## 8. Curriculum
 
 Ogni voce del curriculum è un file `.yaml` in **`src/content/curriculum/`**.
 
@@ -195,7 +329,7 @@ Ogni voce del curriculum è un file `.yaml` in **`src/content/curriculum/`**.
 npm run new:cv
 ```
 
-Lo script chiede sezione, titolo, ente, date ecc. e crea il file.
+Vedi [sezione 4](#npm-run-newcv--nuova-voce-del-curriculum) per le domande dello script.
 
 ### Il formato di una voce
 
@@ -207,9 +341,11 @@ luogo: Città
 dal: 2022-09-01
 al: 2023-06-30                 # se manca, la voce risulta "in corso"
 descrizione: Insegnamento nelle classi del triennio.
-dettagli: [Classe di concorso A041, Contratto a tempo indeterminato]
-url: https://...               # facoltativo, link esterno
-allegato: documenti/attestato.pdf   # facoltativo, file in public/
+dettagli:
+  - Classe di concorso A041
+  - Contratto a tempo indeterminato
+url: https://...               # facoltativo, link esterno sul titolo
+allegato: documenti/curriculum/attestato.pdf   # facoltativo, file in public/
 draft: false                   # true = nascosta online
 ```
 
@@ -223,9 +359,14 @@ draft: false                   # true = nascosta online
 | `formazione` | Formazione e aggiornamento |
 | `certificazioni` | Certificazioni |
 | `lavoro` | Altre esperienze lavorative |
-| `pubblicazioni` | Pubblicazioni e convegni (campi extra: `autori: [..]`, `doi: ...`) |
+| `pubblicazioni` | Pubblicazioni e convegni (campi extra: `autori`, `doi`) |
 
-- Le date si scrivono `AAAA-MM-GG`. Le voci sono ordinate dalla più recente.
+- Le date si scrivono `AAAA-MM-GG` e sul sito compaiono come mese e anno.
+  Con `al` uguale a `dal` compare una data sola (utile per titoli e certificazioni).
+- Le voci sono ordinate dalla più recente.
+- **Allegato PDF** (es. un attestato): sotto la voce compare «Visualizza documento», che apre
+  il PDF nel visualizzatore del sito, senza pulsante di download. Il PDF viene caricato solo
+  quando si apre il pannello. Un allegato non PDF (es. un'immagine) compare come semplice link.
 - Il nome del file non compare sul sito: usa nomi descrittivi (`laurea-informatica.yaml`).
 - Per togliere una voce cancella il file (o metti `draft: true`).
 
@@ -236,12 +377,12 @@ File: **`src/data/competenze.ts`** — tre elenchi: `LINGUE`, `COMPETENZE_DIGITA
 
 ---
 
-## 8. Materiali didattici
+## 9. Materiali didattici
 
 Ogni materiale ha **due parti**:
 
 1. una **scheda** `.md` in `src/content/materiali/` (titolo, materia, argomento, testo);
-2. gli eventuali **file** (PDF, ecc.) in `public/documenti/<nome-materiale>/`.
+2. gli eventuali **file** (PDF, immagini…) in `public/documenti/<nome-materiale>/`.
 
 ### Creare un materiale (consigliato)
 
@@ -249,10 +390,8 @@ Ogni materiale ha **due parti**:
 npm run new:materiale
 ```
 
-Lo script chiede titolo, descrizione, materia, argomento, classi, tipo e se salvarlo come
-bozza. Crea:
-- la scheda `src/content/materiali/<nome>.md`
-- la cartella vuota `public/documenti/<nome>/` per gli allegati.
+Vedi [sezione 4](#npm-run-newmateriale--nuovo-materiale-didattico) per le domande dello
+script. La scheda creata contiene già le istruzioni nei commenti.
 
 ### Il formato della scheda
 
@@ -265,9 +404,10 @@ argomento: Reti
 classi: [4, 5]
 data: 2026-11-09
 tipo: dispensa
+ordine: 1
 tags: [reti, tcp-ip]
 allegati:
-  - nome: Dispensa completa (PDF)
+  - nome: Dispensa completa
     file: documenti/le-reti-di-computer/dispensa.pdf
   - nome: Esercizi
     file: documenti/le-reti-di-computer/esercizi.pdf
@@ -284,23 +424,32 @@ Qui il testo della pagina: obiettivi, indice, istruzioni...
 | `description` | sì | Una o due righe, compare nelle schede |
 | `materia` | sì | Uno degli `slug` di `site.ts` (`informatica`, `tpsc`) |
 | `argomento` | sì | Raggruppa i materiali: vedi sotto |
-| `classi` | no | Anni consigliati da 1 a 5, es. `[3]` o `[3, 4]` |
-| `data` | sì | `AAAA-MM-GG`. Determina l'ordine e gli "Ultimi materiali" in home |
+| `classi` | no | Anni consigliati da 1 a 5, es. `[3]` o `[3, 4]`; `[]` = tutte le classi. Usato dal filtro «Classe» |
+| `data` | sì | `AAAA-MM-GG`. Determina gli "Ultimi materiali" in home e l'ordine dentro l'argomento |
 | `tipo` | no | `dispensa` (predefinito), `slide`, `esercizi`, `mappa`, `recupero`, `compiti`, `simulazione`, `laboratorio`, `video`, `altro` |
+| `ordine` | no | Posizione dentro l'argomento: 1, 2, 3… (vedi sotto) |
 | `tags` | no | Parole chiave, usate dalla ricerca |
-| `allegati` | no | Elenco di file da scaricare (vedi [sezione 9](#9-allegati-immagini-e-slide)) |
+| `allegati` | no | PDF da leggere nella pagina (vedi [sezione 10](#10-allegati-immagini-e-slide)) |
 | `slides` | no | Cartella di una presentazione HTML |
 | `draft` | no | `true` = bozza, visibile solo in anteprima |
 
-### Argomenti
+### Argomenti e ordine
 
 - I materiali con lo **stesso identico** `argomento` vengono raggruppati insieme.
   `Basi di dati` e `Basi di Dati` sono due argomenti diversi: copia sempre il testo da una
-  scheda esistente.
-- Gli argomenti sono mostrati in **ordine alfabetico**. Se vuoi l'ordine del programma
-  numerali: `1. Algoritmi`, `2. Variabili e tipi`, ... (il numero si vede anche sul sito).
-  Oltre il 9 usa `01.`, `02.`, ... per mantenere l'ordine corretto.
-- Dentro un argomento i materiali sono ordinati per `data`, dal più recente.
+  scheda esistente, oppure scegli l'argomento dall'elenco proposto da `npm run new:materiale`.
+- **L'ordine degli argomenti** lo decidi nell'elenco `argomenti` della materia in `site.ts`
+  (vedi [sezione 6](#6-dati-generali-del-sito)). Gli argomenti non elencati vanno in fondo,
+  in ordine alfabetico.
+- **Dentro un argomento** i materiali con `ordine` vengono per primi (1, 2, 3…); quelli senza
+  `ordine` seguono, dal più recente.
+
+### Filtri nella pagina Didattica
+
+Gli studenti possono filtrare per testo, materia, argomento, tipo e **classe**.
+I filtri funzionano anche come link da condividere, per esempio:
+`https://antonio-natale.github.io/sito/didattica/?classe=4` apre la pagina già filtrata
+sui materiali per la 4ª. Si possono combinare: `?materia=informatica&classe=3`.
 
 ### Home page
 
@@ -314,23 +463,43 @@ recente (escluse le bozze). Non serve fare nulla.
 - **Eliminare:** cancella la scheda `.md` e la cartella `public/documenti/<nome>/`.
 
 > **Attenzione:** l'indirizzo della pagina deriva dal **nome del file** della scheda
-> (`le-reti-di-computer.md` → `/sito/didattica/le-reti-di-computer/`). Se rinomini il file,
-> i link già condivisi con gli studenti smettono di funzionare.
+> (`le-reti-di-computer.md` → `/sito/didattica/le-reti-di-computer/`). Se rinomini o sposti
+> il file, i link già condivisi con gli studenti smettono di funzionare.
 
 ---
 
-## 9. Allegati, immagini e slide
+## 10. Allegati, immagini e slide
 
-### Allegati (PDF, Word, ecc.)
+### Allegati PDF: si leggono nel sito, non si scaricano
 
 1. Copia il file in `public/documenti/<nome-materiale>/`.
 2. Aggiungilo alla scheda:
    ```yaml
    allegati:
-     - nome: Testo del link mostrato agli studenti
+     - nome: Titolo mostrato sopra il documento
        file: documenti/<nome-materiale>/file.pdf
    ```
    Il percorso parte da `public/` e **non** inizia con `/`.
+
+Ogni PDF compare **dentro la pagina**, in un visualizzatore con zoom (+/−), indicatore di
+pagina e pulsante **schermo intero** (⛶). Non c'è il pulsante di download; tasto destro,
+Ctrl+S e Ctrl+P sono bloccati e il documento non viene stampato.
+
+> È un **deterrente**, non una protezione assoluta: il sito e il repository sono pubblici,
+> quindi chi sa usare gli strumenti per sviluppatori può comunque recuperare il file.
+
+**Per permettere il download** di un file particolare aggiungi `scaricabile: true`:
+
+```yaml
+allegati:
+  - nome: Modulo da compilare
+    file: documenti/<nome-materiale>/modulo.pdf
+    scaricabile: true
+```
+
+**Allegati non PDF** (Word, testo, ecc.) non si possono mostrare nella pagina: compaiono come
+link nel riquadro «Risorse» e si aprono in una nuova scheda. Se vuoi che restino solo
+consultabili, convertili prima in PDF.
 
 **Regole per i nomi dei file:** minuscole, trattini al posto degli spazi, niente accenti o
 apostrofi. Sì: `dispensa-reti.pdf` — No: `Dispensa reti (v2).pdf`.
@@ -346,6 +515,8 @@ Per i video usa YouTube o Drive e metti il link nel testo della scheda.
    ![Schema del modello ISO/OSI](/sito/documenti/le-reti-di-computer/iso-osi.png)
    ```
 
+> **Mai percorsi con `../`** per le immagini (es. `../../documenti/...`): il sito cerca
+> l'immagine nel posto sbagliato e **la pubblicazione si blocca**.
 > Nel testo Markdown i percorsi interni vanno sempre scritti con `/sito/` davanti
 > (anche i link ad altre pagine: `[vedi esercizi](/sito/didattica/esercizi-reti/)`).
 > Nei campi `allegati` e `slides` invece **no**: lì il prefisso viene aggiunto da solo.
@@ -357,12 +528,15 @@ Per i video usa YouTube o Drive e metti il link nel testo della scheda.
    Un modello pronto è in `public/slides/esempio/index.html`.
 2. Nella scheda del materiale aggiungi: `slides: slides/<nome>/`.
 
+Le slide compaiono **dentro la pagina** del materiale (lo schermo intero è disponibile solo
+se la presentazione HTML ha un suo pulsante).
+
 Per presentazioni PowerPoint o Google Slides è più semplice esportarle in **PDF** e
-caricarle come allegato.
+caricarle come allegato: verranno mostrate nel visualizzatore.
 
 ---
 
-## 10. Sezione Progetti
+## 11. Sezione Progetti
 
 La sezione è **nascosta**. Per riattivarla, in `src/data/site.ts`:
 
@@ -389,7 +563,7 @@ draft: false
 
 ---
 
-## 11. Scrivere in Markdown
+## 12. Scrivere in Markdown
 
 | Scrivi | Ottieni |
 |---|---|
@@ -414,6 +588,9 @@ for i in range(10):
 
 Linguaggi utili: `python`, `c`, `cpp`, `java`, `javascript`, `html`, `css`, `sql`, `bash`.
 
+> Tutto ciò che sta dentro un blocco di codice viene mostrato **così com'è**: link e immagini
+> lì dentro non funzionano. Usa i blocchi solo per mostrare codice.
+
 **Tabelle:**
 
 ```markdown
@@ -428,12 +605,15 @@ Lascia una **riga vuota** tra paragrafi, titoli, elenchi e tabelle.
 
 - I due punti `:` in un valore richiedono le virgolette:
   `title: "Python: le liste"`
-- Rispetta i rientri (2 spazi) sotto `allegati:`.
+- Rispetta i rientri (2 spazi, non tabulazioni) sotto `allegati:` e `dettagli:`.
+- Un elenco si scrive **o** vuoto (`allegati: []`) **o** con le voci sotto (`allegati:` e
+  poi le righe `- nome: ...`), mai entrambe le cose.
 - Le date senza virgolette: `data: 2026-11-09`.
+- Le righe che iniziano con `#` sono commenti e vengono ignorate.
 
 ---
 
-## 12. Pubblicare le modifiche
+## 13. Pubblicare le modifiche
 
 ```
 git add -A
@@ -443,10 +623,10 @@ git push
 
 - `git add -A` prepara tutte le modifiche, `commit` le salva con una descrizione,
   `push` le invia a GitHub.
-- Dopo 1–2 minuti il sito è aggiornato. Se nel browser vedi ancora la vecchia versione,
-  ricarica con `Ctrl+F5`.
+- Dopo qualche minuto (di solito 2–4) il sito è aggiornato. Se nel browser vedi ancora la
+  vecchia versione, ricarica con `Ctrl+F5`.
 - Puoi seguire la pubblicazione nella scheda **Actions** del repository:
-  pallino giallo = in corso, ✓ verde = pubblicato, ✗ rossa = errore (vedi sezione 14).
+  pallino giallo = in corso, ✓ verde = pubblicato, ✗ rossa = errore (vedi [sezione 15](#15-errori-comuni-e-soluzioni)).
 
 **Comandi utili:**
 
@@ -461,7 +641,7 @@ git push
 
 ---
 
-## 13. Lavorare da un altro computer o dal browser
+## 14. Lavorare da un altro computer o dal browser
 
 ### Dal browser (senza installare nulla)
 
@@ -470,7 +650,8 @@ Su https://github.com/Antonio-Natale/sito:
 - **Caricare un PDF:** entra nella cartella (es. `public/documenti/...`) →
   **Add file → Upload files** → **Commit changes**.
 
-Il sito si aggiorna come con il push.
+Il sito si aggiorna come con il push. Dal browser non si possono usare gli script
+(`npm run ...`): le schede vanno scritte a mano, copiando una esistente.
 **Importante:** prima di lavorare di nuovo sul PC, esegui `git pull` per scaricare queste
 modifiche, altrimenti il push successivo verrà rifiutato.
 
@@ -489,7 +670,7 @@ nel repository pubblico.
 
 ---
 
-## 14. Errori comuni e soluzioni
+## 15. Errori comuni e soluzioni
 
 **La pubblicazione su GitHub ha la ✗ rossa.**
 Apri la scheda **Actions**, clicca sull'esecuzione fallita e poi su **build**: il messaggio
@@ -504,19 +685,29 @@ spazi.
 Manca un campo obbligatorio (`title`, `description`, `argomento`, `data`) o la data non è
 nel formato `AAAA-MM-GG`.
 
-**Errore YAML (`bad indentation`, `incomplete explicit mapping`)**
-Di solito: due punti `:` in un valore senza virgolette, oppure rientri sbagliati sotto
-`allegati:`.
+**Errore YAML (`bad indentation`, `incomplete explicit mapping`, `end of the stream`)**
+Di solito: due punti `:` in un valore senza virgolette, rientri sbagliati sotto `allegati:`,
+oppure `allegati: []` lasciato con le voci scritte sotto (togli `[]`).
 
-**Il link a un allegato porta a una pagina 404.**
-Controlla che il percorso in `file:` corrisponda esattamente al file in `public/`
+**`Could not resolve "../../documenti/..."`**
+Un'immagine nel testo usa un percorso con `../`. Scrivilo con `/sito/` davanti
+(vedi [sezione 10](#10-allegati-immagini-e-slide)).
+
+**Un allegato o un'immagine non si vede online (errore o pagina 404).**
+Controlla che il percorso corrisponda esattamente al file in `public/`
 (maiuscole comprese: online `Dispensa.pdf` e `dispensa.pdf` sono diversi).
 
-**Un'immagine nel testo non si vede online.**
-Manca `/sito/` all'inizio del percorso (vedi [sezione 9](#9-allegati-immagini-e-slide)).
+**Il PDF resta su «Caricamento del documento…».**
+Se succede in anteprima, ferma `npm run dev` con `Ctrl+C`, riavvialo e ricarica la pagina
+con `Ctrl+F5`. Se compare un messaggio rosso, il testo tra parentesi indica la causa
+(es. file non trovato: controlla il percorso in `file:`).
 
 **Il materiale non compare online.**
 Ha `draft: true`, oppure non hai fatto commit e push.
+
+**Un argomento compare in fondo alla lista invece che al suo posto.**
+Il nome nel campo `argomento` non è scritto esattamente come nell'elenco `argomenti` di
+`site.ts` (maiuscole, spazi, accenti).
 
 **`git push` rifiutato (`rejected`, `fetch first`).**
 Su GitHub ci sono modifiche che non hai sul PC (fatte dal browser). Esegui `git pull`,
@@ -528,9 +719,12 @@ L'anteprima è già attiva in un altro terminale: usa quella, oppure chiudila co
 **`npm: command not found` o `astro: not found`.**
 Node.js non è installato, oppure manca `npm install` nella cartella del progetto.
 
+**Uno script si ferma con `✘ Esiste già: ...`.**
+C'è già un materiale con lo stesso titolo: scegli un titolo diverso o modifica quello esistente.
+
 ---
 
-## 15. Privacy: cosa non pubblicare
+## 16. Privacy: cosa non pubblicare
 
 Il sito e il repository sono **pubblici** e li leggono studenti minorenni e famiglie.
 
@@ -541,6 +735,8 @@ Il sito e il repository sono **pubblici** e li leggono studenti minorenni e fami
 - Materiali di terzi (libri di testo, immagini) solo se la licenza lo consente.
 - Verifiche con soluzioni, griglie, bozze: tienile nella cartella **`private/`**, che non
   viene mai inviata a GitHub.
+- I PDF mostrati nel visualizzatore non hanno il pulsante di download, ma restano file
+  pubblici: non caricare nulla che non potrebbe essere letto da chiunque.
 
 > Attenzione: anche un file cancellato resta nella **cronologia** di git. Se pubblichi per
 > errore qualcosa di sensibile, non basta cancellarlo: chiedi aiuto per rimuoverlo dalla
@@ -548,23 +744,25 @@ Il sito e il repository sono **pubblici** e li leggono studenti minorenni e fami
 
 ---
 
-## 16. Promemoria rapido
+## 17. Promemoria rapido
 
 ```
-npm run dev              anteprima su http://localhost:4321/sito/
-npm run new:materiale    nuovo materiale didattico
+npm run new:materiale    nuovo materiale didattico (scheda + cartella allegati)
 npm run new:cv           nuova voce del curriculum
+npm run dev              anteprima su http://localhost:4321/sito/ (con le bozze)
 npm run build            controllo finale prima di pubblicare
+npm run preview          anteprima identica al sito online (dopo build)
 
 git add -A
 git commit -m "..."      salva le modifiche
-git push                 pubblica (1–2 minuti)
+git push                 pubblica (qualche minuto)
 git pull                 scarica modifiche fatte altrove
 ```
 
 | Voglio cambiare... | File |
 |---|---|
 | Nome, istituto, email, materie, ricevimento, social | `src/data/site.ts` |
+| Ordine degli argomenti di una materia | `argomenti` in `src/data/site.ts` |
 | Testo "Chi sono" | `src/pagine/chi-sono.md` |
 | Voci del curriculum | `src/content/curriculum/*.yaml` |
 | Lingue e competenze | `src/data/competenze.ts` |

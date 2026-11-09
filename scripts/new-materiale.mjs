@@ -127,7 +127,7 @@ fuori da questo commento e cambia il nome del file. Il percorso deve iniziare co
 
 Link a una pagina esterna: [testo del link](https://www.esempio.it)
 
-Link a un altro materiale del sito: [titolo](../nome-altro-materiale/)
+Link a un altro materiale del sito: [titolo](/sito/didattica/nome-altro-materiale/)
 `;
 
   mkdirSync(DIR, { recursive: true });
