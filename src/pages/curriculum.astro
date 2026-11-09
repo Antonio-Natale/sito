@@ -45,13 +45,6 @@ const haCompetenze = LINGUE.length + COMPETENZE_DIGITALI.length + METODOLOGIE.le
           Materie: {MATERIE.map((m) => m.nome).join(', ')}
         </p>
       </div>
-      <button
-        id="stampa"
-        type="button"
-        class="no-print self-start rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:self-auto dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-      >
-        Stampa / Salva PDF
-      </button>
     </header>
 
     {
@@ -127,7 +120,3 @@ const haCompetenze = LINGUE.length + COMPETENZE_DIGITALI.length + METODOLOGIE.le
     }
   </div>
 </BaseLayout>
-
-<script>
-  document.getElementById('stampa')?.addEventListener('click', () => window.print());
-</script>
