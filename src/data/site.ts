@@ -8,7 +8,7 @@ export const SITE = {
   descrizione:
     'Materiali didattici e curriculum. Uno spazio per studenti, famiglie e colleghi.',
   // Usare l'email istituzionale: il sito è pubblico.
-  email: 'nome.cognome@scuola.example.it',
+  email: 'antonio.natale@isiseinaudi.it',
   lingua: 'it'
 } as const;
 
@@ -57,7 +57,7 @@ export const RICEVIMENTO = {
   prenotazione:
     'I colloqui si prenotano dal registro elettronico, nella sezione dedicata ai colloqui individuali.',
   linkRegistro: 'https://www.example.com/registro-elettronico',
-  note: 'Durante il periodo degli scrutini il ricevimento è sospeso.'
+  note: "Per esigenze particolari è possibile concordare un appuntamento scrivendo all'indirizzo email istituzionale."
 };
 
 // Sezione Progetti: false = nascosta (menu, home e pagine non vengono generate).
