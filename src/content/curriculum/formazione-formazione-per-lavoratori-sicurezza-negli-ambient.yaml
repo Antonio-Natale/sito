@@ -1,0 +1,33 @@
+# ── Voce del curriculum ────────────────────────────────────────────────
+# Le righe che iniziano con # sono commenti: il sito le ignora.
+# Per usare un campo commentato togli il # (e lo spazio dopo) e cambia il valore.
+# Rispetta i rientri (spazi, non tabulazioni) e i due punti dopo ogni campo.
+
+# SEZIONE — valori ammessi: insegnamento, incarichi, titoli, formazione, certificazioni, lavoro, pubblicazioni
+sezione: formazione
+titolo: "Formazione per lavoratori, sicurezza negli ambienti e nei luoghi di lavoro"
+ente: "Studio Bini Engineering s.r.l."
+# luogo: Città
+
+# DATE — formato AAAA-MM-GG. Sul sito compaiono come mese e anno (es. "set 2024 – in corso").
+#  - "al" assente        → "in corso"
+#  - "al" uguale a "dal" → una data sola (titoli, certificazioni)
+dal: 2017-05-01
+al: 2017-05-01
+
+# descrizione: Una frase che spiega di cosa si tratta
+
+# DETTAGLI — brevi informazioni mostrate come etichette (classe di concorso, ore, voto, livello…)
+# dettagli:
+#   - Classe di concorso A041
+#   - 25 ore
+
+# LINK — indirizzo esterno; rende cliccabile il titolo
+# url: https://www.esempio.it
+
+# ALLEGATO — file in public/ (es. attestato). I PDF si leggono nella pagina
+# (pannello «Visualizza documento») e non si scaricano.
+# allegato: documenti/curriculum/formazione-formazione-per-lavoratori-sicurezza-negli-ambient.pdf
+
+# BOZZA — true = bozza, visibile solo con "npm run dev"; false = pubblicata
+draft: false

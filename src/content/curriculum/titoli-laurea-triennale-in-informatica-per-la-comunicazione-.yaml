@@ -1,0 +1,33 @@
+# ── Voce del curriculum ────────────────────────────────────────────────
+# Le righe che iniziano con # sono commenti: il sito le ignora.
+# Per usare un campo commentato togli il # (e lo spazio dopo) e cambia il valore.
+# Rispetta i rientri (spazi, non tabulazioni) e i due punti dopo ogni campo.
+
+# SEZIONE — valori ammessi: insegnamento, incarichi, titoli, formazione, certificazioni, lavoro, pubblicazioni
+sezione: titoli
+titolo: "Laurea Triennale in Informatica per la Comunicazione Digitale"
+ente: "Università degli studi di Milano (UNIMI)"
+luogo: "Milano (MI)"
+
+# DATE — formato AAAA-MM-GG. Sul sito compaiono come mese e anno (es. "set 2024 – in corso").
+#  - "al" assente        → "in corso"
+#  - "al" uguale a "dal" → una data sola (titoli, certificazioni)
+dal: 2025-10-01
+al: 2025-10-01
+
+# descrizione: Una frase che spiega di cosa si tratta
+
+# DETTAGLI — brevi informazioni mostrate come etichette (classe di concorso, ore, voto, livello…)
+dettagli:
+   - "Votazione: 97/110"
+   - "Tesi: Progettazione di una piattaforma per la gestione digitale e sicura dei PCTO"
+
+# LINK — indirizzo esterno; rende cliccabile il titolo
+# url: https://www.esempio.it
+
+# ALLEGATO — file in public/ (es. attestato). I PDF si leggono nella pagina
+# (pannello «Visualizza documento») e non si scaricano.
+# allegato: documenti/curriculum/titoli-laurea-triennale-in-informatica-per-la-comunicazione-.pdf
+
+# BOZZA — true = bozza, visibile solo con "npm run dev"; false = pubblicata
+draft: false
