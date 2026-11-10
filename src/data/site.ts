@@ -51,18 +51,17 @@ export function getMateria(slug: string) {
 
 export const RICEVIMENTO = {
   orari: [
-    { giorno: 'Lunedì', ora: '10:00 – 11:00', note: 'In presenza' },
-    { giorno: 'Giovedì', ora: '15:00 – 16:00', note: 'Online, su prenotazione' }
+    { giorno: 'Lunedì', ora: '8:00 – 9:00', note: 'Online, su prenotazione' }
   ],
   prenotazione:
     'I colloqui si prenotano dal registro elettronico, nella sezione dedicata ai colloqui individuali.',
-  linkRegistro: 'https://www.example.com/registro-elettronico',
+  linkRegistro: 'https://www.portaleargo.it/',
   note: "Per esigenze particolari è possibile concordare un appuntamento scrivendo all'indirizzo email istituzionale."
 };
 
 // Sezione Progetti: false = nascosta (menu, home e pagine non vengono generate).
 // Per riattivarla basta scrivere true.
-export const MOSTRA_PROGETTI = false;
+export const MOSTRA_PROGETTI = true;
 
 export const NAV = [
   { label: 'Home', href: '/' },
