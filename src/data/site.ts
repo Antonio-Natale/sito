@@ -6,7 +6,7 @@ export const SITE = {
   ruolo: 'Docente tecnico-pratico di Informatica',
   istituto: 'Istituto Statale di Istruzione Superiore Luigi Einaudi',
   descrizione:
-    'Materiali didattici e curriculum. Uno spazio per studenti, famiglie e colleghi.',
+    'Materiali didattici, progetti e curriculum professionale. Uno spazio per studenti, famiglie e colleghi.',
   // Usare l'email istituzionale: il sito è pubblico.
   email: 'antonio.natale@isiseinaudi.it',
   lingua: 'it'
