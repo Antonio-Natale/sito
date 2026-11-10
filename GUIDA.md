@@ -219,7 +219,7 @@ Sito Web/
 │   └── content/
 │       ├── materiali/         ← una scheda .md per ogni materiale didattico
 │       ├── curriculum/        ← un file .yaml per ogni voce del curriculum
-│       └── progetti/          ← una scheda .md per ogni progetto (sezione nascosta)
+│       └── progetti/          ← una scheda .md per ogni progetto (scolastico o personale)
 ├── public/
 │   ├── documenti/             ← PDF, immagini e altri allegati, una cartella per materiale
 │   └── slides/                ← presentazioni HTML, una cartella per presentazione
@@ -538,19 +538,23 @@ caricarle come allegato: verranno mostrate nel visualizzatore.
 
 ## 11. Sezione Progetti
 
-La sezione è **nascosta**. Per riattivarla, in `src/data/site.ts`:
+La sezione si mostra o si nasconde da `src/data/site.ts`:
 
 ```ts
-export const MOSTRA_PROGETTI = true;
+export const MOSTRA_PROGETTI = true;   // false = nascosta (menu, home e pagine)
 ```
 
-Tornano visibili la voce nel menu, il riquadro in home e le pagine dei progetti.
-I progetti sono schede `.md` in `src/content/progetti/`, con questi campi:
+I progetti sono schede `.md` in `src/content/progetti/`. La pagina Progetti li divide in due
+sezioni in base al campo `ambito`: **Progetti scolastici** e **Progetti personali**.
+In ogni sezione compaiono prima i progetti in corso, poi i conclusi.
+
+**Progetto scolastico:**
 
 ```yaml
 title: Titolo del progetto
 description: Breve descrizione
 data: 2026-10-01
+ambito: scolastico
 tipo: PCTO              # PCTO, PTOF, Erasmus+, olimpiadi, uscita didattica, altro
 annoScolastico: "2026/27"   # tra virgolette
 materie: [informatica]
@@ -560,6 +564,25 @@ link: https://...       # facoltativo
 inEvidenza: true        # true = mostrato per primo in home
 draft: false
 ```
+
+**Progetto personale** (applicazioni, siti, strumenti):
+
+```yaml
+title: Nome dell'applicazione
+description: Breve descrizione
+data: 2026-10-01
+ambito: personale
+tipo: applicazione      # applicazione, sito web, strumento didattico, altro
+stato: in corso         # oppure: concluso
+tecnologie: [Python, Android]   # mostrate come etichette
+link: https://...       # facoltativo: l'app o il sito
+codice: https://github.com/...  # facoltativo: codice sorgente
+inEvidenza: false
+draft: false
+```
+
+Se `ambito` manca, il progetto è considerato scolastico. Nei progetti scolastici non
+inserire nomi o foto degli studenti.
 
 ---
 

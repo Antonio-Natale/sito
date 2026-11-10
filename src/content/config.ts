@@ -48,14 +48,28 @@ const progetti = defineCollection({
     title: z.string(),
     description: z.string(),
     data: z.coerce.date(),
+    // scolastico = progetti con le classi; personale = applicazioni, siti e strumenti sviluppati da me
+    ambito: z.enum(['scolastico', 'personale']).default('scolastico'),
     tipo: z
-      .enum(['PCTO', 'PTOF', 'Erasmus+', 'olimpiadi', 'uscita didattica', 'altro'])
+      .enum([
+        'PCTO',
+        'PTOF',
+        'Erasmus+',
+        'olimpiadi',
+        'uscita didattica',
+        'applicazione',
+        'sito web',
+        'strumento didattico',
+        'altro'
+      ])
       .default('altro'),
     annoScolastico: z.string().optional(), // es. "2025/26"
     materie: z.array(z.enum(slugMaterie)).default([]),
     stato: z.enum(['in corso', 'concluso']).default('in corso'),
+    tecnologie: z.array(z.string()).default([]), // es. [Python, Android]
     tags: z.array(z.string()).default([]),
-    link: z.string().url().optional(),
+    link: z.string().url().optional(), // app, sito o pagina del progetto
+    codice: z.string().url().optional(), // codice sorgente, es. repository GitHub
     inEvidenza: z.boolean().default(false),
     draft: z.boolean().default(false)
   })

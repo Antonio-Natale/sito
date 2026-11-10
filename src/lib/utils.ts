@@ -39,6 +39,20 @@ export async function getPublished<C extends CollectionKey>(collection: C) {
   );
 }
 
+/** Riga di dettaglio di un progetto nelle schede: anno scolastico o tecnologie, più lo stato se concluso. */
+export function metaProgetto(d: {
+  ambito: string;
+  annoScolastico?: string;
+  tecnologie: readonly string[];
+  stato: string;
+}): string | undefined {
+  const parti = [
+    d.ambito === 'personale' ? d.tecnologie.join(', ') : d.annoScolastico ? `a.s. ${d.annoScolastico}` : '',
+    d.stato === 'concluso' ? 'concluso' : ''
+  ].filter(Boolean);
+  return parti.length > 0 ? parti.join(' · ') : undefined;
+}
+
 /** Ordina per data decrescente. */
 export function byDateDesc<T extends { data: { data: Date } }>(a: T, b: T): number {
   return b.data.data.getTime() - a.data.data.getTime();

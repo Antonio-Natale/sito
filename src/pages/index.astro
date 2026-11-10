@@ -4,7 +4,7 @@ import Card from '@/components/Card.astro';
 import SectionHeading from '@/components/SectionHeading.astro';
 import { MATERIE, MOSTRA_PROGETTI, SITE } from '@/data/site';
 import { coloreMateria } from '@/lib/colori';
-import { ETICHETTE_TIPO, byDateDesc, formatDate, getPublished, withBase } from '@/lib/utils';
+import { ETICHETTE_TIPO, byDateDesc, formatDate, getPublished, metaProgetto, withBase } from '@/lib/utils';
 
 const tuttiMateriali = await getPublished('materiali');
 const materiali = [...tuttiMateriali].sort(byDateDesc).slice(0, 4);
@@ -96,7 +96,7 @@ const conteggio = (slug: string) => tuttiMateriali.filter((m) => m.data.materia 
               title={p.data.title}
               href={`/progetti/${p.slug}/`}
               description={p.data.description}
-              meta={p.data.annoScolastico ? `a.s. ${p.data.annoScolastico}` : undefined}
+              meta={metaProgetto(p.data)}
               badge={p.data.tipo}
             />
           ))}

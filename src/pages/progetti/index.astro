@@ -2,36 +2,48 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Card from '@/components/Card.astro';
 import { MOSTRA_PROGETTI } from '@/data/site';
-import { byDateDesc, getPublished, withBase } from '@/lib/utils';
+import { byDateDesc, getPublished, metaProgetto, withBase } from '@/lib/utils';
 
 // Sezione nascosta: chi apre /progetti/ viene rimandato alla home.
 if (!MOSTRA_PROGETTI) return Astro.redirect(withBase('/'));
 
-const progetti = (await getPublished('progetti')).sort(byDateDesc);
+// In ogni sezione: prima i progetti in corso, poi i conclusi; a parità, i più recenti.
+const progetti = (await getPublished('progetti')).sort(
+  (a, b) => Number(a.data.stato === 'concluso') - Number(b.data.stato === 'concluso') || byDateDesc(a, b)
+);
 
-const gruppi = [
-  { titolo: 'In corso', lista: progetti.filter((p) => p.data.stato === 'in corso') },
-  { titolo: 'Conclusi', lista: progetti.filter((p) => p.data.stato === 'concluso') }
-].filter((g) => g.lista.length > 0);
+const sezioni = [
+  {
+    titolo: 'Progetti scolastici',
+    intro: 'PCTO, progetti del PTOF, Erasmus+, olimpiadi e uscite didattiche.',
+    lista: progetti.filter((p) => p.data.ambito === 'scolastico')
+  },
+  {
+    titolo: 'Progetti personali',
+    intro: 'Applicazioni, siti web e strumenti didattici che ho sviluppato.',
+    lista: progetti.filter((p) => p.data.ambito === 'personale')
+  }
+].filter((s) => s.lista.length > 0);
 ---
 
-<BaseLayout title="Progetti" description="PCTO, progetti PTOF, Erasmus+, olimpiadi e uscite didattiche.">
+<BaseLayout title="Progetti" description="Progetti scolastici e progetti personali di sviluppo software.">
   <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Progetti</h1>
-  <p class="mt-3 text-slate-600 dark:text-slate-400">PCTO, progetti del PTOF, Erasmus+, olimpiadi e uscite didattiche.</p>
+  <p class="mt-3 text-slate-600 dark:text-slate-400">Progetti realizzati a scuola con le classi e progetti personali di sviluppo.</p>
 
-  {gruppi.length === 0 && <p class="mt-8 text-slate-500 dark:text-slate-400">Nessun progetto pubblicato.</p>}
+  {sezioni.length === 0 && <p class="mt-8 text-slate-500 dark:text-slate-400">Nessun progetto pubblicato.</p>}
 
   {
-    gruppi.map((g) => (
+    sezioni.map((s) => (
       <section class="mt-10">
-        <h2 class="mb-4 text-xl font-bold text-slate-900 dark:text-white">{g.titolo}</h2>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white">{s.titolo}</h2>
+        <p class="mb-4 mt-1 text-sm text-slate-600 dark:text-slate-400">{s.intro}</p>
         <div class="grid gap-4 sm:grid-cols-2">
-          {g.lista.map((p) => (
+          {s.lista.map((p) => (
             <Card
               title={p.data.title}
               href={`/progetti/${p.slug}/`}
               description={p.data.description}
-              meta={p.data.annoScolastico ? `a.s. ${p.data.annoScolastico}` : undefined}
+              meta={metaProgetto(p.data)}
               badge={p.data.tipo}
             />
           ))}

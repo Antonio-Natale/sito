@@ -2,6 +2,7 @@
 title: Progetto PCTO di esempio
 description: Un percorso per le competenze trasversali e l'orientamento, per mostrare come si presenta una pagina di progetto.
 data: 2025-10-01
+ambito: scolastico
 tipo: PCTO
 annoScolastico: "2025/26"
 materie: [informatica]
