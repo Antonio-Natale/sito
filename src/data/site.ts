@@ -3,7 +3,7 @@
 export const SITE = {
   titolo: 'Prof. Antonio Natale',
   nome: 'Antonio Natale',
-  ruolo: 'Docente di scuola secondaria di secondo grado',
+  ruolo: 'Docente tecnico-pratico di Informatica',
   istituto: 'Istituto Statale di Istruzione Superiore Luigi Einaudi',
   descrizione:
     'Materiali didattici e curriculum. Uno spazio per studenti, famiglie e colleghi.',
@@ -21,15 +21,17 @@ export type ColoreMateria = 'blu' | 'verde' | 'ambra' | 'rosa' | 'viola' | 'cian
 export const MATERIE = [
   {
     slug: 'informatica',
-    nome: 'Informatica',
-    descrizione: 'Algoritmi, programmazione, basi di dati e sviluppo del software.',
+    nome: 'Laboratorio di Informatica',
+    descrizione:
+      "Attività di laboratorio di informatica negli indirizzi professionali Servizi per la sanità e l'assistenza sociale e Servizi commerciali.",
     colore: 'blu',
     argomenti: ['Sicurezza informatica', 'Argomento A', 'Argomento B']
   },
   {
     slug: 'tpsc',
-    nome: 'TPSC',
-    descrizione: 'Breve descrizione della materia.',
+    nome: 'Laboratorio di TPSC',
+    descrizione:
+      'Laboratorio di Tecniche professionali per i servizi commerciali, in compresenza con il docente della disciplina.',
     colore: 'verde',
     argomenti: ['Argomento C']
   }
