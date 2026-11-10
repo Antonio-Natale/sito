@@ -1,0 +1,32 @@
+# ── Voce del curriculum ────────────────────────────────────────────────
+# Le righe che iniziano con # sono commenti: il sito le ignora.
+# Per usare un campo commentato togli il # (e lo spazio dopo) e cambia il valore.
+# Rispetta i rientri (spazi, non tabulazioni) e i due punti dopo ogni campo.
+
+# SEZIONE — valori ammessi: insegnamento, incarichi, titoli, formazione, certificazioni, lavoro, pubblicazioni
+sezione: insegnamento
+titolo: "Docente Tecnico-Pratico di Informatica"
+ente: "I.I.S. Luigi Einaudi"
+luogo: "Via Giuseppe Verdi, 48 - 24044 Dalmine (BG)"
+
+# DATE — formato AAAA-MM-GG. Sul sito compaiono come mese e anno (es. "set 2024 – in corso").
+#  - "al" assente        → "in corso"
+#  - "al" uguale a "dal" → una data sola (titoli, certificazioni)
+dal: 2021-09-01
+# al: 2021-09-01
+
+# descrizione: Una frase che spiega di cosa si tratta
+
+# DETTAGLI — brevi informazioni mostrate come etichette (classe di concorso, ore, voto, livello…)
+dettagli:
+  - "B016 - LABORATORI DI SCIENZE E TECNOLOGIE INFORMATICHE"
+
+# LINK — indirizzo esterno; rende cliccabile il titolo
+# url: https://www.esempio.it
+
+# ALLEGATO — file in public/ (es. attestato). I PDF si leggono nella pagina
+# (pannello «Visualizza documento») e non si scaricano.
+# allegato: documenti/curriculum/insegnamento-docente-tecnico-pratico-di-informatica-7.pdf
+
+# BOZZA — true = bozza, visibile solo con "npm run dev"; false = pubblicata
+draft: false

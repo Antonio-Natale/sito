@@ -1,0 +1,32 @@
+# ── Voce del curriculum ────────────────────────────────────────────────
+# Le righe che iniziano con # sono commenti: il sito le ignora.
+# Per usare un campo commentato togli il # (e lo spazio dopo) e cambia il valore.
+# Rispetta i rientri (spazi, non tabulazioni) e i due punti dopo ogni campo.
+
+# SEZIONE — valori ammessi: insegnamento, incarichi, titoli, formazione, certificazioni, lavoro, pubblicazioni
+sezione: insegnamento
+titolo: "Docente Tecnico-Pratico di Fisica"
+ente: "I.I.S. Evangelista Torricelli"
+luogo: "Via Ulisse Dini, 7 - 20142 Milano (MI)"
+
+# DATE — formato AAAA-MM-GG. Sul sito compaiono come mese e anno (es. "set 2024 – in corso").
+#  - "al" assente        → "in corso"
+#  - "al" uguale a "dal" → una data sola (titoli, certificazioni)
+dal: 2019-10-01
+al: 2020-06-01
+
+# descrizione: Una frase che spiega di cosa si tratta
+
+# DETTAGLI — brevi informazioni mostrate come etichette (classe di concorso, ore, voto, livello…)
+dettagli:
+  - "B003 - LABORATORI DI FISICA"
+
+# LINK — indirizzo esterno; rende cliccabile il titolo
+# url: https://www.esempio.it
+
+# ALLEGATO — file in public/ (es. attestato). I PDF si leggono nella pagina
+# (pannello «Visualizza documento») e non si scaricano.
+# allegato: documenti/curriculum/insegnamento-docente-tecnico-pratico-di-fisica-2.pdf
+
+# BOZZA — true = bozza, visibile solo con "npm run dev"; false = pubblicata
+draft: false
