@@ -1,8 +1,0 @@
-SCHEDA DI ESERCIZI (ESEMPIO)
-
-Questo file è un segnaposto. Metti in public/documenti/ i PDF e gli altri
-allegati da pubblicare e collegali dal materiale con:
-
-allegati:
-  - nome: Nome visibile
-    file: documenti/nome-file.pdf
