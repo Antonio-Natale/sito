@@ -69,4 +69,13 @@ const { argomenti, tipi, classi } = opzioniFiltri(materiali);
       </section>
     ))
   }
+
+  {
+    materiali.length > 0 && (
+      <p class="mt-16 border-t border-slate-200 pt-6 text-sm text-slate-500 dark:border-slate-800 dark:text-slate-400">
+        Alcuni materiali sono stati preparati con il supporto di strumenti di intelligenza artificiale. Tutti i contenuti
+        sono stati rivisti, verificati e adattati dal docente.
+      </p>
+    )
+  }
 </BaseLayout>

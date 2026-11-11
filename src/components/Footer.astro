@@ -9,7 +9,7 @@ const anno = new Date().getFullYear();
   <div
     class="mx-auto flex max-w-4xl flex-col gap-3 px-4 py-8 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between sm:px-6 dark:text-slate-400"
   >
-    <p>© {anno} {SITE.nome} · {SITE.istituto}</p>
+    <p>{SITE.nome} · {SITE.istituto}</p>
     <ul class="flex flex-wrap gap-4">
       <li><a href={`mailto:${SITE.email}`} class="hover:text-brand-700 dark:hover:text-brand-300">{SITE.email}</a></li>
       {
@@ -23,5 +23,13 @@ const anno = new Date().getFullYear();
       }
       <li><a href={withBase('/rss.xml')} class="hover:text-brand-700 dark:hover:text-brand-300">RSS</a></li>
     </ul>
+  </div>
+  <div class="mx-auto max-w-4xl px-4 pb-8 sm:px-6">
+    <p class="border-t border-slate-200 pt-4 text-xs leading-relaxed text-slate-500 dark:border-slate-800 dark:text-slate-400">
+      Sito personale, non istituzionale.<br />
+      © {anno} {SITE.nome}. I materiali sono consultabili liberamente su questo sito: è possibile condividerne il link e
+      utilizzarli direttamente dalle sue pagine. Non ne è consentita la copia, la riproduzione o la distribuzione senza
+      autorizzazione.
+    </p>
   </div>
 </footer>
