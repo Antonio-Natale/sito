@@ -14,7 +14,7 @@ export const COMPETENZE_DIGITALI: string[] = [
   'Ambienti di sviluppo: Visual Studio Code, Eclipse, IntelliJ IDEA, Qt Creator',
   'Office automation: Microsoft Office (Word, Excel, PowerPoint)',
   'Sistemi operativi: Windows, Linux (Ubuntu)',
-  'Strumenti per la didattica: Google Workspace for Education, Google Classroom, Moodle, Microsoft Teams'
+  'Strumenti per la didattica: Google Workspace for Education (Classroom, Drive, Documenti, Moduli, Meet)'
 ];
 
 export const METODOLOGIE: string[] = [

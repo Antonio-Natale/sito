@@ -121,6 +121,7 @@ Le domande, in ordine:
 | Titolo | Il titolo del materiale (se non l'hai scritto nel comando) |
 | Descrizione breve | Una riga; invio = uguale al titolo |
 | Materia | Il numero della materia nell'elenco |
+| Cartella | Il numero di una cartella esistente; invio = la cartella della materia (`informatica` o `tpsc`). Con «Nuova cartella…» scrivi il nome, anche come sottocartella (es. `informatica/reti`): se esiste già viene usata quella |
 | Argomento | Il numero di un argomento già previsto in `site.ts`, oppure «Nuovo argomento…» e poi il nome |
 | Posizione dentro l'argomento | 1, 2, 3…; invio = ordine per data |
 | Classi | Anni da 1 a 5 separati da virgola, es. `3, 4`; invio = adatto a tutte le classi |
@@ -128,7 +129,7 @@ Le domande, in ordine:
 | Salvare come bozza? | `s` = bozza, visibile solo in anteprima; `n` = pubblicato al prossimo push |
 
 Alla fine crea:
-- la scheda `src/content/materiali/<nome>.md` (il nome deriva dal titolo);
+- la scheda `src/content/materiali/<cartella>/<nome>.md` (il nome deriva dal titolo);
 - la cartella vuota `public/documenti/<nome>/` per i PDF e le immagini.
 
 **Apri la scheda creata:** contiene un commento accanto a ogni campo, gli esempi già pronti
@@ -136,9 +137,15 @@ per allegati e slide (basta togliere i `#`) e alcuni esempi di formattazione nel
 cancellare o modificare. Se scegli un argomento nuovo, lo script ti ricorda di aggiungerlo
 all'elenco `argomenti` in `site.ts` (vedi [sezione 6](#6-dati-generali-del-sito)).
 
-> Lo script crea la scheda direttamente in `src/content/materiali/`. Se preferisci
-> organizzare i materiali in sottocartelle (es. `competenze-digitali/`), spostala tu:
-> l'indirizzo della pagina conterrà anche il nome della cartella.
+> **Cartelle:** servono solo a tenere ordine. Il sito raggruppa i materiali in base ai campi
+> `materia` e `argomento`, non alla cartella. Il nome della cartella però entra nell'indirizzo
+> della pagina (es. `/sito/didattica/informatica/reti/le-reti-di-computer/`): se poi la sposti o
+> la rinomini, i link già condivisi smettono di funzionare. Usa nomi in minuscolo con i trattini
+> (lo script li adatta da solo).
+>
+> **Nomi unici:** due materiali non possono avere lo stesso nome di file, nemmeno in cartelle
+> diverse, perché condividerebbero la cartella degli allegati `public/documenti/<nome>/`.
+> Lo script se ne accorge e chiede un altro titolo.
 
 ### `npm run new:cv` — nuova voce del curriculum
 

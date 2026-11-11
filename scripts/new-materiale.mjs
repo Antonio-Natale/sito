@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-// Crea un nuovo materiale didattico in src/content/materiali/.
+// Crea un nuovo materiale didattico in src/content/materiali/ (o in una sua sottocartella).
 // Uso: npm run new:materiale
 //      npm run new:materiale -- "Titolo del materiale"
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { chiedi, chiudi, ROOT, scegli, slugify, yamlString } from './lib-cli.mjs';
 
@@ -28,15 +28,70 @@ function leggiMaterie() {
   return materie;
 }
 
+// Elenca le cartelle (e sottocartelle) dentro src/content/materiali, es. "informatica/reti"
+function elencaCartelle(dir = DIR, prefisso = '') {
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir, { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .sort((a, b) => a.name.localeCompare(b.name, 'it'))
+    .flatMap((d) => {
+      const rel = prefisso ? `${prefisso}/${d.name}` : d.name;
+      return [rel, ...elencaCartelle(join(dir, d.name), rel)];
+    });
+}
+
+// Elenca tutti i file .md dei materiali, per evitare nomi doppi in cartelle diverse
+function elencaSchede(dir = DIR, prefisso = '') {
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir, { withFileTypes: true }).flatMap((d) => {
+    const rel = prefisso ? `${prefisso}/${d.name}` : d.name;
+    if (d.isDirectory()) return elencaSchede(join(dir, d.name), rel);
+    return d.name.endsWith('.md') ? [rel] : [];
+  });
+}
+
+// Chiede la cartella: una esistente, la principale o una nuova (es. "informatica/reti")
+async function scegliCartella(materia) {
+  const esistenti = elencaCartelle();
+  const scelta = await scegli(
+    'Cartella in cui salvare la scheda',
+    [
+      ...esistenti.map((c) => ({ valore: c, etichetta: c })),
+      { valore: '.', etichetta: '(cartella principale)' },
+      { valore: '', etichetta: 'Nuova cartella…' }
+    ],
+    esistenti.includes(materia) ? materia : undefined
+  );
+  if (scelta === '.') return '';
+  if (scelta) return scelta;
+  for (;;) {
+    const testo = await chiedi('Nome della cartella (per una sottocartella usa /, es. informatica/reti)');
+    const cartella = testo.split(/[\\/]+/).map(slugify).filter(Boolean).join('/');
+    if (!cartella) continue;
+    if (cartella !== testo.trim()) console.log(`  Nome adattato: ${cartella}`);
+    if (esistenti.includes(cartella)) console.log('  La cartella esiste già: verrà usata quella.');
+    return cartella;
+  }
+}
+
 try {
   const materie = leggiMaterie();
   if (materie.length === 0) throw new Error('Nessuna materia trovata in src/data/site.ts (MATERIE).');
 
   let titolo = process.argv.slice(2).join(' ').trim();
-  while (!titolo) titolo = await chiedi('Titolo');
+  // il nome del file deriva dal titolo e deve essere unico in tutte le cartelle:
+  // gli allegati vanno in public/documenti/<nome>/, condivisa tra file con lo stesso nome
+  for (;;) {
+    while (!titolo) titolo = await chiedi('Titolo');
+    const doppione = elencaSchede().find((f) => f.split('/').pop() === `${slugify(titolo)}.md`);
+    if (!doppione) break;
+    console.log(`  Esiste già un materiale con questo nome: src/content/materiali/${doppione}. Scegli un titolo diverso.`);
+    titolo = '';
+  }
 
   const descrizione = await chiedi('Descrizione breve', titolo);
   const materia = await scegli('Materia', materie.map((m) => ({ valore: m.slug, etichetta: m.nome })));
+  const cartella = await scegliCartella(materia);
   const { argomenti } = materie.find((m) => m.slug === materia);
   let argomento = '';
   if (argomenti.length) {
@@ -59,8 +114,8 @@ try {
   const bozza = (await chiedi('Salvare come bozza? (s/n)', 's')).toLowerCase().startsWith('s');
 
   const slug = slugify(titolo);
-  const file = join(DIR, `${slug}.md`);
-  if (existsSync(file)) throw new Error(`Esiste già: ${file}`);
+  const relFile = cartella ? `${cartella}/${slug}.md` : `${slug}.md`;
+  const file = join(DIR, ...relFile.split('/'));
 
   const oggi = new Date().toISOString().slice(0, 10);
   const contenuto = `---
@@ -130,12 +185,16 @@ Link a una pagina esterna: [testo del link](https://www.esempio.it)
 Link a un altro materiale del sito: [titolo](/sito/didattica/nome-altro-materiale/)
 `;
 
-  mkdirSync(DIR, { recursive: true });
+  // se la cartella esiste già viene usata così com'è, altrimenti viene creata
+  const dirScheda = join(DIR, ...(cartella ? cartella.split('/') : []));
+  if (!existsSync(dirScheda)) mkdirSync(dirScheda, { recursive: true });
   writeFileSync(file, contenuto, 'utf8');
-  mkdirSync(join(ROOT, 'public', 'documenti', slug), { recursive: true });
+  const dirAllegati = join(ROOT, 'public', 'documenti', slug);
+  if (!existsSync(dirAllegati)) mkdirSync(dirAllegati, { recursive: true });
 
-  console.log(`\n✔ Creato src/content/materiali/${slug}.md`);
+  console.log(`\n✔ Creato src/content/materiali/${relFile}`);
   console.log(`✔ Cartella allegati: public/documenti/${slug}/`);
+  console.log(`  Indirizzo della pagina: /sito/didattica/${relFile.replace(/\.md$/, '')}/`);
   console.log('  Apri il file: le istruzioni per allegati, immagini e link sono nei commenti.');
   if (bozza) console.log('  (bozza: visibile solo con "npm run dev"; imposta draft: false per pubblicarlo)');
 } catch (e) {
