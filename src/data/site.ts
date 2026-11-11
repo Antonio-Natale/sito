@@ -33,7 +33,7 @@ export const MATERIE = [
     descrizione:
       'Laboratorio di Tecniche professionali per i servizi commerciali, in compresenza con il docente della disciplina.',
     colore: 'verde',
-    argomenti: []
+    argomenti: ['Gestione del magazzino']
   }
 ] as const satisfies readonly {
   slug: string;
