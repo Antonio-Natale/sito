@@ -525,7 +525,6 @@ Per i video usa YouTube o Drive e metti il link nel testo della scheda.
 
 1. Crea una cartella `public/slides/<nome>/` con dentro un file `index.html`
    (va bene anche una presentazione esportata da altri strumenti in HTML).
-   Un modello pronto è in `public/slides/esempio/index.html`.
 2. Nella scheda del materiale aggiungi: `slides: slides/<nome>/`.
 
 Le slide compaiono **dentro la pagina** del materiale (lo schermo intero è disponibile solo

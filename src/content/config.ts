@@ -36,7 +36,7 @@ const materiali = defineCollection({
     allegati: z
       .array(z.object({ nome: z.string(), file: z.string(), scaricabile: z.boolean().default(false) }))
       .default([]),
-    // presentazione HTML in public/slides/<nome>/ (es. "slides/esempio/")
+    // presentazione HTML in public/slides/<nome>/ (es. "slides/reti/")
     slides: z.string().optional(),
     draft: z.boolean().default(false)
   })
