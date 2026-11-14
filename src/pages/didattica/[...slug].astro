@@ -3,6 +3,7 @@ import type { GetStaticPaths } from 'astro';
 import type { CollectionEntry } from 'astro:content';
 import EntryLayout from '@/layouts/EntryLayout.astro';
 import Card from '@/components/Card.astro';
+import Icona from '@/components/Icona.astro';
 import VisualizzatorePdf from '@/components/VisualizzatorePdf.astro';
 import { getMateria } from '@/data/site';
 import { coloreMateria } from '@/lib/colori';
@@ -80,12 +81,14 @@ const meta = [
           {link.map((a) => (
             <li>
               {a.scaricabile ? (
-                <a href={withBase(a.file)} class="font-medium text-brand-700 hover:underline dark:text-brand-300" download>
-                  ⤓ {a.nome}
+                <a href={withBase(a.file)} class="inline-flex items-center gap-2 font-medium text-brand-700 hover:underline dark:text-brand-300" download>
+                  <Icona nome="scarica" />
+                  {a.nome}
                 </a>
               ) : (
-                <a href={withBase(a.file)} class="font-medium text-brand-700 hover:underline dark:text-brand-300" target="_blank" rel="noopener">
-                  ▸ {a.nome}
+                <a href={withBase(a.file)} class="inline-flex items-center gap-2 font-medium text-brand-700 hover:underline dark:text-brand-300" target="_blank" rel="noopener">
+                  <Icona nome="apri" />
+                  {a.nome}
                 </a>
               )}
             </li>

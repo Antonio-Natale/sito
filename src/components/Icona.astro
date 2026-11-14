@@ -1,0 +1,39 @@
+---
+// Piccole icone SVG (tratto, stile "Lucide"): si vedono uguali su tutti i dispositivi,
+// a differenza dei simboli di testo come ⛶ o ⤓. Prendono il colore del testo (currentColor).
+const PERCORSI = {
+  meno: ['M5 12h14'],
+  piu: ['M12 5v14', 'M5 12h14'],
+  'schermo-intero': ['M8 3H5a2 2 0 0 0-2 2v3', 'M21 8V5a2 2 0 0 0-2-2h-3', 'M3 16v3a2 2 0 0 0 2 2h3', 'M16 21h3a2 2 0 0 0 2-2v-3'],
+  'esci-schermo-intero': ['M8 3v3a2 2 0 0 1-2 2H3', 'M21 8h-3a2 2 0 0 1-2-2V3', 'M3 16h3a2 2 0 0 1 2 2v3', 'M16 21v-3a2 2 0 0 1 2-2h3'],
+  scarica: ['M12 15V3', 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4', 'M7 10l5 5 5-5'],
+  apri: ['M15 3h6v6', 'M10 14 21 3', 'M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'],
+  menu: ['M4 6h16', 'M4 12h16', 'M4 18h16']
+} as const;
+
+export type NomeIcona = keyof typeof PERCORSI;
+
+interface Props {
+  nome: NomeIcona;
+  class?: string;
+  [attr: `data-${string}`]: string | undefined;
+}
+
+const { nome, class: classe = 'h-4 w-4', ...resto } = Astro.props;
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+  class:list={['shrink-0', classe]}
+  {...resto}
+>
+  {PERCORSI[nome].map((d) => <path d={d} />)}
+</svg>

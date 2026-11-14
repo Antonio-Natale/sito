@@ -3,6 +3,7 @@
 // senza i pulsanti Scarica/Stampa del visualizzatore integrato del browser.
 // NB: è un deterrente, non una protezione assoluta (il sito è statico e pubblico).
 import { withBase } from '@/lib/utils';
+import Icona from '@/components/Icona.astro';
 
 interface Props {
   file: string; // percorso in public/, es. "documenti/scheda.pdf"
@@ -28,10 +29,13 @@ const { file, nome, compatto = false, consentiStampa = false } = Astro.props;
     <h2 class="min-w-0 truncate text-sm font-semibold text-slate-800 dark:text-slate-100">{nome}</h2>
     <div class="flex shrink-0 items-center gap-1 text-sm">
       <span data-pagina class="mr-2 hidden tabular-nums text-slate-500 sm:inline"></span>
-      <button type="button" data-zoom="-1" class="btn" aria-label="Riduci">−</button>
+      <button type="button" data-zoom="-1" class="btn" aria-label="Riduci" title="Riduci"><Icona nome="meno" /></button>
       <span data-zoom-label class="w-11 text-center tabular-nums text-slate-500">100%</span>
-      <button type="button" data-zoom="1" class="btn" aria-label="Ingrandisci">+</button>
-      <button type="button" data-fs class="btn ml-1" aria-label="Schermo intero" title="Schermo intero">⛶</button>
+      <button type="button" data-zoom="1" class="btn" aria-label="Ingrandisci" title="Ingrandisci"><Icona nome="piu" /></button>
+      <button type="button" data-fs class="btn ml-1" aria-label="Schermo intero" title="Schermo intero">
+        <Icona nome="schermo-intero" data-fs-entra="" />
+        <Icona nome="esci-schermo-intero" class="hidden h-4 w-4" data-fs-esci="" />
+      </button>
     </div>
   </header>
   <div data-pages class="pdf-pages relative h-[75vh] min-h-[22rem] overflow-auto bg-slate-100 p-2 sm:h-[80vh] sm:p-4 dark:bg-slate-900">
@@ -47,8 +51,11 @@ const { file, nome, compatto = false, consentiStampa = false } = Astro.props;
     -webkit-touch-callout: none;
   }
   .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     border-radius: 0.375rem;
-    padding: 0.25rem 0.55rem;
+    padding: 0.375rem;
     line-height: 1.25rem;
   }
   .btn:hover {
@@ -239,7 +246,8 @@ const { file, nome, compatto = false, consentiStampa = false } = Astro.props;
     const nativo = !!root.requestFullscreen && document.fullscreenEnabled;
     const attivo = () => (nativo ? document.fullscreenElement === root : root.classList.contains('pdf-fs'));
     const aggiornaBtn = () => {
-      btnFs.textContent = attivo() ? '✕' : '⛶';
+      btnFs.querySelector('[data-fs-entra]')?.classList.toggle('hidden', attivo());
+      btnFs.querySelector('[data-fs-esci]')?.classList.toggle('hidden', !attivo());
       btnFs.title = btnFs.ariaLabel = attivo() ? 'Esci da schermo intero' : 'Schermo intero';
     };
     btnFs.addEventListener('click', async () => {

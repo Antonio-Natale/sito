@@ -1,6 +1,7 @@
 ---
 import { NAV, SITE } from '@/data/site';
 import { withBase } from '@/lib/utils';
+import Icona from '@/components/Icona.astro';
 
 const path = Astro.url.pathname;
 const isActive = (href: string) => {
@@ -10,7 +11,7 @@ const isActive = (href: string) => {
 ---
 
 <header class="no-print border-b border-slate-200 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90">
-  <div class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+  <div class="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
     <a href={withBase('/')} class="font-semibold text-slate-900 hover:text-brand-700 dark:text-white dark:hover:text-brand-300">
       {SITE.titolo}
     </a>
@@ -42,8 +43,9 @@ const isActive = (href: string) => {
     <!-- Menu mobile (senza JavaScript) -->
     <details class="relative md:hidden">
       <summary
-        class="cursor-pointer list-none rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+        class="flex cursor-pointer list-none items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800 [&::-webkit-details-marker]:hidden"
       >
+        <Icona nome="menu" class="h-5 w-5" />
         Menu
       </summary>
       <ul
