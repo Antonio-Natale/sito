@@ -28,6 +28,27 @@ function leggiMaterie() {
   return materie;
 }
 
+// Aggiunge un argomento in fondo alla lista "argomenti" di una materia in src/data/site.ts
+function aggiungiArgomento(slugMateria, argomento) {
+  const file = join(ROOT, 'src', 'data', 'site.ts');
+  const src = readFileSync(file, 'utf8');
+  const inizioMaterie = src.indexOf('export const MATERIE');
+  const inizio = src.indexOf(`slug: '${slugMateria}'`, inizioMaterie);
+  if (inizioMaterie < 0 || inizio < 0) return false;
+  const re = /argomenti:\s*\[([\s\S]*?)\]/g;
+  re.lastIndex = inizio;
+  const m = re.exec(src);
+  // la lista trovata deve appartenere a questa materia, non a quella successiva
+  const prossima = src.indexOf('slug:', inizio + 1);
+  if (!m || (prossima >= 0 && m.index > prossima)) return false;
+  const voci = [...m[1].matchAll(/'([^']*)'|"([^"]*)"/g)].map((x) => x[1] ?? x[2]);
+  voci.push(argomento);
+  const quota = (s) => (s.includes("'") ? JSON.stringify(s) : `'${s}'`);
+  const nuovo = `argomenti: [${voci.map(quota).join(', ')}]`;
+  writeFileSync(file, src.slice(0, m.index) + nuovo + src.slice(m.index + m[0].length), 'utf8');
+  return true;
+}
+
 // Elenca le cartelle (e sottocartelle) dentro src/content/materiali, es. "informatica/reti"
 function elencaCartelle(dir = DIR, prefisso = '') {
   if (!existsSync(dir)) return [];
@@ -101,8 +122,10 @@ try {
     ]);
   }
   while (!argomento) argomento = await chiedi('Argomento (es. "Le reti di computer")');
-  if (!argomenti.includes(argomento))
-    console.log(`  Nota: aggiungi "${argomento}" ad "argomenti" in src/data/site.ts per sceglierne la posizione.`);
+  // se il nuovo argomento esiste già (a parte maiuscole/minuscole) si usa quello esistente
+  const esistente = argomenti.find((a) => a.toLowerCase() === argomento.toLowerCase());
+  if (esistente) argomento = esistente;
+  const nuovoArgomento = !esistente;
   const ordineTesto = await chiedi("Posizione dentro l'argomento: 1, 2, 3… (invio per ordinare per data)");
   const ordine = /^\d+$/.test(ordineTesto) ? Number(ordineTesto) : undefined;
   const classiTesto = await chiedi('Classi consigliate, anni da 1 a 5 separati da virgola (invio per nessuna)');
@@ -194,6 +217,11 @@ Link a un altro materiale del sito: [titolo](/sito/didattica/nome-altro-material
 
   console.log(`\n✔ Creato src/content/materiali/${relFile}`);
   console.log(`✔ Cartella allegati: public/documenti/${slug}/`);
+  if (nuovoArgomento) {
+    if (aggiungiArgomento(materia, argomento))
+      console.log(`✔ Argomento "${argomento}" aggiunto in src/data/site.ts (in fondo: sposta la voce per cambiarne l'ordine)`);
+    else console.log(`  Attenzione: non sono riuscito ad aggiungere "${argomento}" in src/data/site.ts, aggiungilo a mano.`);
+  }
   console.log(`  Indirizzo della pagina: /sito/didattica/${relFile.replace(/\.md$/, '')}/`);
   console.log('  Apri il file: le istruzioni per allegati, immagini e link sono nei commenti.');
   if (bozza) console.log('  (bozza: visibile solo con "npm run dev"; imposta draft: false per pubblicarlo)');
