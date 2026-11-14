@@ -5,6 +5,7 @@ import { SITE } from '@/data/site';
 import { withBase } from '@/lib/utils';
 // Font ospitati nel sito: nessuna richiesta a Google, nessun dato dei visitatori a terzi
 import '@fontsource-variable/inter';
+import '@fontsource-variable/bricolage-grotesque';
 import '@fontsource/jetbrains-mono/400.css';
 import '@/styles/global.css';
 
@@ -24,6 +25,19 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
+    <script is:inline>
+      // Tema chiaro/scuro prima che la pagina compaia (niente "lampo" bianco).
+      // "tema" salvato dal pulsante nell'intestazione; se manca, si seguono le impostazioni del dispositivo.
+      (function () {
+        var salvato = null;
+        try {
+          salvato = localStorage.getItem('tema');
+        } catch (e) {}
+        var scuro = salvato ? salvato === 'scuro' : matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.classList.toggle('dark', scuro);
+        document.documentElement.style.colorScheme = scuro ? 'dark' : 'light';
+      })();
+    </script>
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />

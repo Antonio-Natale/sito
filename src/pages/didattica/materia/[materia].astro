@@ -64,6 +64,7 @@ const colore = coloreMateria(materia.slug);
                 .filter(Boolean)
                 .join(' · ')}
               badge={ETICHETTE_TIPO[m.data.tipo]}
+              tipo={m.data.tipo}
               dataAttrs={attributiFiltro(m)}
             />
           ))}

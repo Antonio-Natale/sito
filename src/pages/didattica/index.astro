@@ -59,6 +59,7 @@ const { argomenti, tipi, classi } = opzioniFiltri(materiali);
                     .filter(Boolean)
                     .join(' · ')}
                   badge={ETICHETTE_TIPO[m.data.tipo]}
+                  tipo={m.data.tipo}
                   materia={m.data.materia}
                   dataAttrs={attributiFiltro(m)}
                 />

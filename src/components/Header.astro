@@ -16,6 +16,7 @@ const isActive = (href: string) => {
       {SITE.titolo}
     </a>
 
+    <div class="flex items-center gap-1">
     <!-- Menu desktop -->
     <nav aria-label="Navigazione principale" class="hidden md:block">
       <ul class="flex gap-1">
@@ -71,5 +72,65 @@ const isActive = (href: string) => {
         }
       </ul>
     </details>
+
+    <!-- Tema chiaro/scuro (stato iniziale impostato in BaseLayout) -->
+    <button
+      type="button"
+      data-cambia-tema
+      class="rounded-md p-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+      aria-label="Tema scuro"
+      title="Tema scuro"
+    >
+      <Icona nome="luna" class="h-5 w-5 dark:hidden" />
+      <Icona nome="sole" class="hidden h-5 w-5 dark:block" />
+    </button>
+    </div>
   </div>
 </header>
+
+<script>
+  // ---------- Tema chiaro/scuro ----------
+  const radice = document.documentElement;
+  const btnTema = document.querySelector<HTMLButtonElement>('[data-cambia-tema]');
+
+  function applica(scuro: boolean) {
+    radice.classList.toggle('dark', scuro);
+    radice.style.colorScheme = scuro ? 'dark' : 'light';
+    if (btnTema) btnTema.title = btnTema.ariaLabel = scuro ? 'Tema chiaro' : 'Tema scuro';
+  }
+  applica(radice.classList.contains('dark'));
+
+  btnTema?.addEventListener('click', () => {
+    const scuro = !radice.classList.contains('dark');
+    applica(scuro);
+    try {
+      localStorage.setItem('tema', scuro ? 'scuro' : 'chiaro');
+    } catch {
+      // archiviazione non disponibile (es. navigazione privata): vale solo per questa pagina
+    }
+  });
+
+  // Senza una scelta salvata, segue le impostazioni del dispositivo anche mentre la pagina è aperta.
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    let salvato: string | null = null;
+    try {
+      salvato = localStorage.getItem('tema');
+    } catch {}
+    if (!salvato) applica(e.matches);
+  });
+
+  // ---------- Menu mobile: si chiude toccando fuori, scegliendo una voce o con Esc ----------
+  const menu = document.querySelector<HTMLDetailsElement>('header details');
+  if (menu) {
+    document.addEventListener('click', (e) => {
+      if (menu.open && !menu.contains(e.target as Node)) menu.open = false;
+    });
+    menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => (menu.open = false)));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && menu.open) {
+        menu.open = false;
+        menu.querySelector('summary')?.focus();
+      }
+    });
+  }
+</script>

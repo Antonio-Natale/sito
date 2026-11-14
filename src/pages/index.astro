@@ -78,6 +78,7 @@ const conteggio = (slug: string) => tuttiMateriali.filter((m) => m.data.materia 
               description={m.data.description}
               meta={`${m.data.argomento} · ${formatDate(m.data.data)}`}
               badge={ETICHETTE_TIPO[m.data.tipo]}
+              tipo={m.data.tipo}
               materia={m.data.materia}
             />
           ))}

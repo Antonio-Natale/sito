@@ -1,12 +1,14 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./src/**/*.{astro,html,js,jsx,md,mdx,ts,tsx}'],
-  // Tema scuro automatico, in base alle impostazioni del dispositivo
-  darkMode: 'media',
+  // Tema scuro: classe "dark" su <html>, impostata in BaseLayout (scelta salvata o impostazioni del dispositivo)
+  darkMode: 'class',
   theme: {
     extend: {
       fontFamily: {
         sans: ['"Inter Variable"', 'Inter', 'system-ui', 'sans-serif'],
+        // titoli (h1, h2, h3: vedi src/styles/global.css)
+        display: ['"Bricolage Grotesque Variable"', '"Inter Variable"', 'system-ui', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'monospace']
       },
       colors: {

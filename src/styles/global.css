@@ -4,6 +4,14 @@ html {
   scroll-behavior: smooth;
 }
 
+/* font dei titoli */
+h1,
+h2,
+h3 {
+  font-family: theme('fontFamily.display');
+  letter-spacing: -0.01em;
+}
+
 /* gli elementi nascosti dai filtri restano nascosti anche se hanno classi come "block" o "grid" */
 [hidden] {
   display: none !important;
@@ -88,36 +96,34 @@ html {
   border-radius: 8px;
 }
 
-/* ---------- Tema scuro per i contenuti ---------- */
-@media (prefers-color-scheme: dark) {
-  .prose {
-    color: theme('colors.slate.300');
-  }
-  .prose h2,
-  .prose h3,
-  .prose strong {
-    color: theme('colors.slate.100');
-  }
-  .prose a {
-    color: theme('colors.brand.300');
-  }
-  .prose a:hover {
-    color: theme('colors.brand.200');
-  }
-  .prose blockquote {
-    border-left-color: theme('colors.brand.700');
-    color: theme('colors.slate.400');
-  }
-  .prose code:not(pre code) {
-    background: theme('colors.slate.800');
-  }
-  .prose th,
-  .prose td {
-    border-color: theme('colors.slate.700');
-  }
-  .prose th {
-    background: theme('colors.slate.800');
-  }
+/* ---------- Tema scuro per i contenuti (classe "dark" su <html>) ---------- */
+.dark .prose {
+  color: theme('colors.slate.300');
+}
+.dark .prose h2,
+.dark .prose h3,
+.dark .prose strong {
+  color: theme('colors.slate.100');
+}
+.dark .prose a {
+  color: theme('colors.brand.300');
+}
+.dark .prose a:hover {
+  color: theme('colors.brand.200');
+}
+.dark .prose blockquote {
+  border-left-color: theme('colors.brand.700');
+  color: theme('colors.slate.400');
+}
+.dark .prose code:not(pre code) {
+  background: theme('colors.slate.800');
+}
+.dark .prose th,
+.dark .prose td {
+  border-color: theme('colors.slate.700');
+}
+.dark .prose th {
+  background: theme('colors.slate.800');
 }
 
 /* ---------- Stampa (es. "Salva come PDF" del curriculum) ---------- */

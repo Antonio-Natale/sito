@@ -2,6 +2,7 @@
 import { getMateria } from '@/data/site';
 import { coloreMateria } from '@/lib/colori';
 import { withBase } from '@/lib/utils';
+import Icona, { type NomeIcona } from '@/components/Icona.astro';
 
 interface Props {
   title: string;
@@ -11,13 +12,31 @@ interface Props {
   badge?: string;
   /** slug della materia: mostra un'etichetta colorata */
   materia?: string;
+  /** tipo di materiale (dispensa, slide…): mostra un'icona colorata nell'etichetta */
+  tipo?: string;
   /** attributi data-* usati dai filtri (es. { 'data-materia': 'storia' }) */
   dataAttrs?: Record<string, string>;
 }
 
-const { title, href, description, meta, badge, materia, dataAttrs = {} } = Astro.props;
+// Colore dell'icona per ogni tipo (classi scritte per intero, così Tailwind le include).
+// Niente viola/verde: sono i colori delle materie.
+const COLORI_TIPO: Record<string, string> = {
+  dispensa: 'text-sky-600 dark:text-sky-400',
+  slide: 'text-orange-600 dark:text-orange-400',
+  esercizi: 'text-amber-600 dark:text-amber-400',
+  mappa: 'text-teal-600 dark:text-teal-400',
+  recupero: 'text-rose-600 dark:text-rose-400',
+  compiti: 'text-indigo-600 dark:text-indigo-400',
+  simulazione: 'text-red-600 dark:text-red-400',
+  laboratorio: 'text-cyan-600 dark:text-cyan-400',
+  video: 'text-pink-600 dark:text-pink-400',
+  altro: 'text-slate-500 dark:text-slate-400'
+};
+
+const { title, href, description, meta, badge, materia, tipo, dataAttrs = {} } = Astro.props;
 const m = materia ? getMateria(materia) : undefined;
 const colore = materia ? coloreMateria(materia) : undefined;
+const iconaTipo = tipo && tipo in COLORI_TIPO ? (`tipo-${tipo}` as NomeIcona) : undefined;
 ---
 
 <a
@@ -34,7 +53,8 @@ const colore = materia ? coloreMateria(materia) : undefined;
     </h3>
     {
       badge && (
-        <span class="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+        <span class="inline-flex shrink-0 items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+          {iconaTipo && tipo && <Icona nome={iconaTipo} class:list={['h-3.5 w-3.5', COLORI_TIPO[tipo]]} />}
           {badge}
         </span>
       )
