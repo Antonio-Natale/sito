@@ -23,9 +23,9 @@ tags: []
 # di un file aggiungi sotto il suo "file" la riga "    scaricabile: true".
 allegati:
   - nome: Presentazione
-    file: documenti/lezione-1-dal-magazzino-al-database/Lezione_1_Dal_magazzino_al_database.pdf
+    file: documenti/gestione-magazzino/lezione-1-dal-magazzino-al-database/Lezione_1_Dal_magazzino_al_database.pdf
   - nome: Dispensa
-    file: documenti/lezione-1-dal-magazzino-al-database/Dispensa_Lezione_1_Dal_magazzino_al_database.pdf
+    file: documenti/gestione-magazzino/lezione-1-dal-magazzino-al-database/Dispensa_Lezione_1_Dal_magazzino_al_database.pdf
 
 # SLIDE HTML (cartella in public/slides/lezione-1-dal-magazzino-al-database/ con dentro index.html):
 # slides: slides/lezione-1-dal-magazzino-al-database/
