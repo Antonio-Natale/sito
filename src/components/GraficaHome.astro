@@ -9,9 +9,11 @@ import iniziali from '@/data/iniziali-an.json';
 
 interface Props {
   class?: string;
+  /** false = lettere ferme, senza animazione (es. nell'intestazione di Chi sono) */
+  animata?: boolean;
 }
 
-const { class: classe } = Astro.props;
+const { class: classe, animata = true } = Astro.props;
 
 // area utile: le lettere occupano circa y 57–183 su una larghezza di 280
 const VB = { x: 0, y: 30, w: 280, h: 180 };
@@ -68,7 +70,7 @@ const punti = [...prepara(iniziali.riempi, 'riempi'), ...prepara(iniziali.bordo,
   xmlns="http://www.w3.org/2000/svg"
   aria-hidden="true"
   focusable="false"
-  class:list={['grafica-home', classe]}
+  class:list={['grafica-home', !animata && 'gh-ferma', classe]}
   style={`--lampo:${LAMPO}ms;--volo:${VOLO}ms`}
 >
   <defs>
@@ -148,6 +150,11 @@ const punti = [...prepara(iniziali.riempi, 'riempi'), ...prepara(iniziali.bordo,
     }
   }
 
+  .gh-ferma .gh-griglia,
+  .gh-ferma .gh-sposta,
+  .gh-ferma .gh-punto {
+    animation: none;
+  }
   @media (prefers-reduced-motion: reduce) {
     .gh-griglia,
     .gh-sposta,

@@ -1,43 +1,159 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import GraficaHome from '@/components/GraficaHome.astro';
+import Icona, { type NomeIcona } from '@/components/Icona.astro';
 import { Content } from '@/pagine/chi-sono.md';
 import { MATERIE, SITE } from '@/data/site';
 import { coloreMateria } from '@/lib/colori';
-import { withBase } from '@/lib/utils';
+import { getPublished, withBase } from '@/lib/utils';
+
+const voci = await getPublished('curriculum');
+const materiali = await getPublished('materiali');
+const oggi = new Date();
+const anno = (d: Date) => d.getFullYear();
+
+// ---------- Altri incarichi: voci "incarichi" del curriculum ancora in corso ----------
+function iconaIncarico(titolo: string): NomeIcona {
+  const t = titolo.toLowerCase();
+  if (t.includes('eipass') || t.includes('certificazion')) return 'certificato';
+  if (t.includes('orientamento')) return 'bussola';
+  if (t.includes('scuola lavoro') || t.includes('scuola-lavoro') || t.includes('pcto')) return 'valigetta';
+  if (t.includes('orario')) return 'calendario';
+  if (t.includes('coordinat')) return 'persone';
+  return 'spunta';
+}
+const incarichi = voci
+  .filter((v) => v.data.sezione === 'incarichi' && (!v.data.al || v.data.al >= oggi))
+  .sort((a, b) => a.data.dal.getTime() - b.data.dal.getTime())
+  .map((v) => ({ titolo: v.data.titolo, dal: anno(v.data.dal), icona: iconaIncarico(v.data.titolo) }));
+
+const insegnamento = voci.filter((v) => v.data.sezione === 'insegnamento');
+
+// ---------- In breve: 3–4 dati in evidenza, presi da curriculum e materie ----------
+type Dato = { valore: string; etichetta: string; icona: NomeIcona };
+const inBreve: Dato[] = [];
+const attuale = insegnamento.find((v) => !v.data.al);
+if (attuale) inBreve.push({ valore: `Dal ${anno(attuale.data.dal)}`, etichetta: `all'${attuale.data.ente}`, icona: 'scuola' });
+const numeroMaterie: number = MATERIE.length;
+inBreve.push({
+  valore: `${numeroMaterie} ${numeroMaterie === 1 ? 'laboratorio' : 'laboratori'}`,
+  etichetta: MATERIE.map((m) => m.nome.replace(/^Laboratorio di\s+/i, '')).join(' e '),
+  icona: 'tipo-laboratorio'
+});
+const laurea = voci
+  .filter((v) => v.data.sezione === 'titoli' && /laurea/i.test(v.data.titolo))
+  .sort((a, b) => b.data.dal.getTime() - a.data.dal.getTime())[0];
+if (laurea) {
+  inBreve.push({ valore: 'Laurea', etichetta: laurea.data.titolo.replace(/^laurea(\s+(triennale|magistrale))?\s*/i, ''), icona: 'laurea' });
+}
+if (incarichi.some((i) => /eipass/i.test(i.titolo))) {
+  inBreve.push({ valore: 'EIPASS', etichetta: 'Referente, formatore ed esaminatore', icona: 'certificato' });
+}
+
+const conteggio = (slug: string) => materiali.filter((m) => m.data.materia === slug).length;
+const titoloSezione = 'text-2xl font-bold text-slate-900 dark:text-white';
 ---
 
 <BaseLayout title="Chi sono" description={`Presentazione di ${SITE.nome}, ${SITE.ruolo}.`}>
-  <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Chi sono</h1>
-  <p class="mt-2 text-lg text-slate-600 dark:text-slate-400">{SITE.nome} · {SITE.istituto}</p>
+  <!-- Intestazione con le iniziali di punti (ferme) -->
+  <header class="flex flex-col-reverse gap-6 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-white">Chi sono</h1>
+      <p class="mt-2 text-lg font-medium text-slate-800 dark:text-slate-200">{SITE.nome}</p>
+      <p class="text-slate-600 dark:text-slate-400">{SITE.ruolo} · {SITE.istituto}</p>
+    </div>
+    <GraficaHome animata={false} class="w-40 shrink-0 sm:w-52" />
+  </header>
 
-  <ul class="mt-4 flex flex-wrap gap-2">
-    {
-      MATERIE.map((m) => (
-        <li>
-          <a
-            href={withBase(`/didattica/materia/${m.slug}/`)}
-            class:list={['inline-block rounded-full px-3 py-1 text-sm font-medium hover:opacity-80', coloreMateria(m.slug).chip]}
-          >
-            {m.nome}
-          </a>
-        </li>
-      ))
-    }
-  </ul>
+  <!-- In breve -->
+  <section aria-label="In breve" class="mt-8">
+    <ul class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      {
+        inBreve.map((d) => (
+          <li class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
+            <Icona nome={d.icona} class="h-5 w-5 text-brand-600 dark:text-brand-400" />
+            <p class="mt-3 font-display text-xl font-bold leading-tight text-slate-900 dark:text-white">{d.valore}</p>
+            <p class="mt-1 text-sm leading-snug text-slate-600 dark:text-slate-400">{d.etichetta}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
 
-  <article class="prose mt-8 max-w-none">
+  <article class="prose mt-10 max-w-none">
     <Content />
   </article>
 
-  <div class="mt-10 flex flex-wrap gap-3">
-    <a href={withBase('/curriculum/')} class="rounded-lg bg-brand-600 px-4 py-2 font-medium text-white hover:bg-brand-700">
-      Curriculum completo
-    </a>
-    <a
-      href={withBase('/ricevimento/')}
-      class="rounded-lg border border-slate-300 px-4 py-2 font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-    >
-      Ricevimento e contatti
-    </a>
-  </div>
+  <!-- Insegnamento: una card per materia -->
+  <section class="mt-14" aria-labelledby="insegnamento">
+    <h2 id="insegnamento" class={titoloSezione}>Insegnamento</h2>
+    <div class="mt-5 grid gap-4 sm:grid-cols-2">
+      {
+        MATERIE.map((m) => (
+          <a
+            href={withBase(`/didattica/materia/${m.slug}/`)}
+            class:list={[
+              'group flex flex-col rounded-xl border border-l-4 border-slate-200 bg-white p-5 transition hover:shadow-md dark:border-slate-800 dark:bg-slate-900',
+              coloreMateria(m.slug).bordo
+            ]}
+          >
+            <span class:list={['self-start rounded-full px-2.5 py-0.5 text-xs font-medium', coloreMateria(m.slug).chip]}>
+              {conteggio(m.slug)} {conteggio(m.slug) === 1 ? 'materiale' : 'materiali'}
+            </span>
+            <h3 class="mt-3 text-lg font-semibold text-slate-900 group-hover:text-brand-700 dark:text-slate-100 dark:group-hover:text-brand-300">
+              {m.nome}
+            </h3>
+            <p class="mt-1 flex-1 text-sm text-slate-600 dark:text-slate-400">{m.descrizione}</p>
+            <span class="mt-4 text-sm font-medium text-brand-700 dark:text-brand-300">Vai ai materiali →</span>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- Altri incarichi -->
+  {
+    incarichi.length > 0 && (
+      <section class="mt-14" aria-labelledby="incarichi">
+        <h2 id="incarichi" class={titoloSezione}>Altri incarichi</h2>
+        <ul class="mt-5 grid gap-3 sm:grid-cols-2">
+          {incarichi.map((i) => (
+            <li class="flex items-center gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-800">
+              <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300">
+                <Icona nome={i.icona} class="h-5 w-5" />
+              </span>
+              <span>
+                <span class="block font-medium text-slate-900 dark:text-slate-100">{i.titolo}</span>
+                <span class="block text-xs text-slate-500 dark:text-slate-400">dal {i.dal}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  <!-- Per studenti e famiglie -->
+  <section
+    class="mt-14 rounded-2xl border border-brand-100 bg-brand-50/60 p-6 sm:p-8 dark:border-brand-900 dark:bg-brand-950/40"
+    aria-labelledby="studenti-famiglie"
+  >
+    <h2 id="studenti-famiglie" class={titoloSezione}>Per studenti e famiglie</h2>
+    <p class="mt-3 text-slate-700 dark:text-slate-300">
+      In questo sito raccolgo una selezione di materiali didattici: risorse prodotte da me, approfondimenti e integrazioni al
+      libro di testo, utili a supporto dello studio. I materiali sono organizzati per materia e per classe; sono inoltre
+      disponibili le informazioni per il ricevimento.
+    </p>
+    <div class="mt-6 flex flex-wrap gap-3">
+      <a href={withBase('/didattica/')} class="rounded-lg bg-brand-600 px-4 py-2 font-medium text-white hover:bg-brand-700">
+        Materiali didattici
+      </a>
+      <a
+        href={withBase('/ricevimento/')}
+        class="rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+      >
+        Ricevimento e contatti
+      </a>
+    </div>
+  </section>
 </BaseLayout>
