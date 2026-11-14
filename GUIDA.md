@@ -220,7 +220,8 @@ Sito Web/
 ├── src/
 │   ├── data/
 │   │   ├── site.ts            ← nome, istituto, email, materie e argomenti, ricevimento, menu
-│   │   └── competenze.ts      ← lingue, competenze digitali, metodologie (curriculum)
+│   │   ├── competenze.ts      ← lingue, competenze digitali, metodologie (curriculum)
+│   │   └── iniziali-an.json   ← coordinate dei punti delle iniziali "AN" (home e Chi sono)
 │   ├── pagine/
 │   │   └── chi-sono.md        ← testo della pagina "Chi sono"
 │   └── content/
@@ -229,9 +230,11 @@ Sito Web/
 │       └── progetti/          ← una scheda .md per ogni progetto (scolastico o personale)
 ├── public/
 │   ├── documenti/             ← PDF, immagini e allegati: una cartella per argomento, dentro una per materiale
-│   └── slides/                ← presentazioni HTML, una cartella per presentazione
+│   ├── slides/                ← presentazioni HTML, una cartella per presentazione
+│   └── favicon.svg            ← icona nella scheda del browser (iniziali "AN")
 ├── scripts/                   ← gli script new:materiale e new:cv
 ├── private/                   ← file personali: NON viene mai pubblicata
+├── tailwind.config.mjs        ← colori del sito (blu "brand") e font
 └── GUIDA.md                   ← questa guida
 ```
 
@@ -268,9 +271,9 @@ export const SITE = {
 export const MATERIE = [
   {
     slug: 'informatica',
-    nome: 'Informatica',
+    nome: 'Laboratorio di Informatica',
     descrizione: '...',
-    colore: 'blu',
+    colore: 'viola',
     argomenti: ['Sicurezza informatica', 'Reti', 'Basi di dati']
   },
   ...
@@ -281,7 +284,10 @@ export const MATERIE = [
   nell'indirizzo della pagina (`/didattica/materia/informatica/`).
   Solo minuscole, numeri e trattini. **Non cambiarlo** se ci sono già materiali che lo usano.
 - `nome` e `descrizione`: si possono cambiare liberamente.
-- `colore`: uno tra `blu`, `verde`, `ambra`, `rosa`, `viola`, `ciano`.
+- `colore`: uno tra `blu`, `verde`, `ambra`, `rosa`, `viola`, `ciano`. È il colore della
+  materia in tutto il sito (bordo delle card, etichette, pallini). Oggi Informatica è `viola`
+  e TPSC è `verde`. **Evita `blu`**: si confonde con il blu del sito usato per link e pulsanti.
+  Due materie non dovrebbero avere lo stesso colore.
 - `argomenti`: **l'ordine in cui gli argomenti compaiono sul sito** (pagina della materia e
   filtro «Argomento»). I nomi vanno scritti **esattamente** come nel campo `argomento` dei
   materiali. Un argomento non elencato compare lo stesso, in fondo, in ordine alfabetico.
@@ -314,15 +320,50 @@ export const SOCIAL = [
 
 Le righe che iniziano con `//` sono commenti e vengono ignorate: per attivarle togli `//`.
 
+### Aspetto: colori, font, tema, icone
+
+Queste parti si cambiano di rado; se hai dubbi chiedi aiuto prima di modificarle.
+
+- **Tema chiaro/scuro.** Il pulsante luna/sole in alto a destra cambia tema; la scelta resta
+  salvata nel browser di chi visita. Senza una scelta, il sito segue le impostazioni del
+  dispositivo. Non c'è niente da configurare.
+- **Colori.** Il blu del sito (link, pulsanti, titoli evidenziati) è `brand` in
+  `tailwind.config.mjs`; i colori delle materie si scelgono in `site.ts` (vedi sopra).
+- **Font.** Testo in *Inter*, titoli in *Bricolage Grotesque*, codice in *JetBrains Mono*.
+  Sono **ospitati nel sito** (pacchetti `@fontsource`), non caricati da Google: così nessun
+  dato dei visitatori va a servizi esterni, come dichiarato nel footer.
+- **Favicon.** `public/favicon.svg`: le iniziali "AN" bianche su fondo blu. Dopo averla
+  cambiata, ricarica con `Ctrl+F5` (il browser la tiene in memoria).
+- **Iniziali animate.** In home le iniziali "AN" in *Playfair Display* sono fatte di punti che
+  arrivano in volo e compongono le lettere; nella pagina Chi sono compaiono ferme. Le
+  coordinate dei punti sono in `src/data/iniziali-an.json`, ricavate una volta dal file del
+  font: per cambiare lettere o font vanno rigenerate (chiedi aiuto). Chi ha attivo "riduci
+  animazioni" sul dispositivo vede le lettere ferme.
+- **Icone per tipo di materiale.** Nelle card dei materiali l'etichetta del `tipo` (Dispensa,
+  Slide, Esercizi…) ha un'icona colorata: si assegna da sola in base al campo `tipo`.
+
 ---
 
 ## 7. Pagina "Chi sono"
 
 File: **`src/pagine/chi-sono.md`**
 
-Scrivi il testo in Markdown (vedi [sezione 12](#12-scrivere-in-markdown)). I titoli con `##`
-diventano i paragrafi della pagina. Nome, materie e contatti vengono aggiunti
-automaticamente da `site.ts`.
+Nel file scrivi solo **la presentazione** e **l'approccio didattico**, in Markdown (vedi
+[sezione 12](#12-scrivere-in-markdown)). I titoli con `##` diventano i titoli della pagina.
+
+Tutto il resto si compone **da solo**, quindi non va scritto nel file:
+
+| Parte della pagina | Da dove arriva |
+|---|---|
+| Intestazione (nome, ruolo, istituto) e iniziali "AN" | `SITE` in `site.ts` |
+| **In breve**: "Dal 2021", laboratori, laurea, EIPASS | curriculum (insegnamento in corso, titoli, incarichi) e `MATERIE` |
+| **Insegnamento**: una card per materia, con il numero di materiali | `MATERIE` in `site.ts` |
+| **Altri incarichi**: elenco con icone | voci `incarichi` del curriculum **ancora in corso** (senza `al`) |
+| **Per studenti e famiglie**: riquadro finale con i pulsanti | testo in `src/pages/chi-sono.astro` |
+
+Per esempio: quando un incarico finisce, aggiungi la data `al` nella sua voce del curriculum e
+sparisce da solo da "Altri incarichi". L'icona dell'incarico si sceglie in base al titolo
+(EIPASS, orientamento, scuola-lavoro, orario, coordinatore).
 
 ---
 
@@ -376,6 +417,10 @@ draft: false                   # true = nascosta online
   quando si apre il pannello. Un allegato non PDF (es. un'immagine) compare come semplice link.
 - Il nome del file non compare sul sito: usa nomi descrittivi (`laurea-informatica.yaml`).
 - Per togliere una voce cancella il file (o metti `draft: true`).
+- **Scrivi i nomi sempre allo stesso modo**: l'istituto attuale è `I.S.I.S. Luigi Einaudi`
+  (non `I.I.S.` né `L. Einaudi`). Le voci compaiono anche nella pagina Chi sono.
+- Le voci `insegnamento`, `titoli` e `incarichi` alimentano anche la pagina Chi sono
+  (vedi [sezione 7](#7-pagina-chi-sono)).
 
 ### Competenze
 
@@ -461,7 +506,14 @@ sui materiali per la 4ª. Si possono combinare: `?materia=informatica&classe=3`.
 ### Home page
 
 La sezione "Ultimi materiali" mostra **automaticamente** i 4 materiali con la `data` più
-recente (escluse le bozze). Non serve fare nulla.
+recente (escluse le bozze). Anche il numero di materiali nelle card "Le mie materie" si
+aggiorna da solo. Non serve fare nulla.
+
+### Come compaiono i materiali
+
+- Nelle card la descrizione si ferma alla terza riga: il testo completo è nella pagina del
+  materiale. Scrivi quindi le informazioni più importanti all'inizio della `description`.
+- L'etichetta del `tipo` ha un'icona colorata diversa per ogni tipo.
 
 ### Modificare o eliminare un materiale
 
@@ -744,6 +796,13 @@ poi di nuovo `git push`.
 
 **`npm run dev` dice che la porta è occupata.**
 L'anteprima è già attiva in un altro terminale: usa quella, oppure chiudila con `Ctrl+C`.
+Se la porta 4321 è occupata, Astro usa la successiva (4322…): l'indirizzo giusto è quello
+scritto nel terminale.
+
+**Dopo una modifica a `tailwind.config.mjs` l'anteprima dà errore 500 (es. `'fontFamily.display'
+does not exist`).**
+L'anteprima non rilegge quel file da sola: fermala con `Ctrl+C` e riavvia `npm run dev`.
+`npm run build` invece lo legge sempre.
 
 **`npm: command not found` o `astro: not found`.**
 Node.js non è installato, oppure manca `npm install` nella cartella del progetto.
@@ -766,6 +825,9 @@ Il sito e il repository sono **pubblici** e li leggono studenti minorenni e fami
   viene mai inviata a GitHub.
 - I PDF mostrati nel visualizzatore non hanno il pulsante di download, ma restano file
   pubblici: non caricare nulla che non potrebbe essere letto da chiunque.
+- Il footer dichiara che il sito **non usa cookie, statistiche né risorse da servizi esterni**.
+  Se un giorno aggiungi un video YouTube incorporato, Google Fonts, mappe o statistiche,
+  quella frase non è più vera: va aggiornata (in `src/components/Footer.astro`).
 
 > Attenzione: anche un file cancellato resta nella **cronologia** di git. Se pubblichi per
 > errore qualcosa di sensibile, non basta cancellarlo: chiedi aiuto per rimuoverlo dalla
@@ -792,7 +854,11 @@ git pull                 scarica modifiche fatte altrove
 |---|---|
 | Nome, istituto, email, materie, ricevimento, social | `src/data/site.ts` |
 | Ordine degli argomenti di una materia | `argomenti` in `src/data/site.ts` |
-| Testo "Chi sono" | `src/pagine/chi-sono.md` |
+| Testo "Chi sono" (presentazione e approccio) | `src/pagine/chi-sono.md` |
+| Riquadro "Per studenti e famiglie" | `src/pages/chi-sono.astro` |
+| Colore di una materia | `colore` in `src/data/site.ts` |
+| Blu del sito e font | `tailwind.config.mjs` |
+| Favicon | `public/favicon.svg` |
 | Voci del curriculum | `src/content/curriculum/*.yaml` |
 | Lingue e competenze | `src/data/competenze.ts` |
 | Materiali | `src/content/materiali/*.md` + `public/documenti/` |
