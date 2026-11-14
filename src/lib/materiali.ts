@@ -25,6 +25,16 @@ export function confrontaMateriali(a: Materiale, b: Materiale): number {
   return byDateDesc(a, b);
 }
 
+/**
+ * Materiali dello stesso argomento intorno a quello indicato (già ordinati con confrontaMateriali):
+ * uno precedente e i successivi, così si vede subito cosa viene dopo. Vicino all'inizio o alla
+ * fine dell'argomento la finestra si sposta per mostrarne comunque `quanti`.
+ */
+export function materialiVicini(gruppo: Materiale[], indice: number, quanti = 4): Materiale[] {
+  const inizio = Math.max(0, Math.min(indice - 1, gruppo.length - (quanti + 1)));
+  return gruppo.slice(inizio, inizio + quanti + 1).filter((_, i) => inizio + i !== indice);
+}
+
 /** Raggruppa per argomento (ordine di MATERIE[].argomenti, poi alfabetico). */
 export function perArgomento(materiali: Materiale[]): [string, Materiale[]][] {
   const mappa = new Map<string, Materiale[]>();

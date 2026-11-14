@@ -6,31 +6,41 @@ import Card from '@/components/Card.astro';
 import VisualizzatorePdf from '@/components/VisualizzatorePdf.astro';
 import { getMateria } from '@/data/site';
 import { coloreMateria } from '@/lib/colori';
-import { confrontaMateriali } from '@/lib/materiali';
-import { ETICHETTE_TIPO, formatClassi, formatDate, getPublished, withBase } from '@/lib/utils';
+import { confrontaMateriali, materialiVicini } from '@/lib/materiali';
+import { ETICHETTE_TIPO, formatClassi, formatDate, getPublished, slugify, withBase } from '@/lib/utils';
 
 export const getStaticPaths = (async () => {
   const materiali = await getPublished('materiali');
-  return materiali.map((entry) => ({
-    params: { slug: entry.slug },
-    props: {
-      entry,
-      correlati: materiali
-        .filter(
-          (m) => m.id !== entry.id && m.data.materia === entry.data.materia && m.data.argomento === entry.data.argomento
-        )
-        .sort(confrontaMateriali)
-        .slice(0, 4)
-    }
-  }));
+  return materiali.map((entry) => {
+    // tutti i materiali dello stesso argomento, compreso questo, nell'ordine del sito
+    const gruppo = materiali
+      .filter((m) => m.data.materia === entry.data.materia && m.data.argomento === entry.data.argomento)
+      .sort(confrontaMateriali);
+    const indice = gruppo.findIndex((m) => m.id === entry.id);
+    return {
+      params: { slug: entry.slug },
+      props: {
+        entry,
+        correlati: materialiVicini(gruppo, indice),
+        totaleArgomento: gruppo.length,
+        precedente: gruppo[indice - 1],
+        successivo: gruppo[indice + 1]
+      }
+    };
+  });
 }) satisfies GetStaticPaths;
 
+type Materiale = CollectionEntry<'materiali'>;
+
 interface Props {
-  entry: CollectionEntry<'materiali'>;
-  correlati: CollectionEntry<'materiali'>[];
+  entry: Materiale;
+  correlati: Materiale[];
+  totaleArgomento: number;
+  precedente?: Materiale;
+  successivo?: Materiale;
 }
 
-const { entry, correlati } = Astro.props;
+const { entry, correlati, totaleArgomento, precedente, successivo } = Astro.props;
 const { Content } = await entry.render();
 const d = entry.data;
 const materia = getMateria(d.materia)!;
@@ -98,8 +108,45 @@ const meta = [
   <Content />
 
   {
+    (precedente || successivo) && (
+      <nav slot="dopo" aria-label={`Materiali su «${d.argomento}»`} class="no-print mt-14 grid gap-4 sm:grid-cols-2">
+        {precedente && (
+          <a
+            href={withBase(`/didattica/${precedente.slug}/`)}
+            rel="prev"
+            class="group block rounded-xl border border-slate-200 bg-white p-4 transition hover:border-brand-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-brand-700"
+          >
+            <span class="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">← Precedente</span>
+            <span class="mt-1 block font-semibold text-slate-900 group-hover:text-brand-700 dark:text-slate-100 dark:group-hover:text-brand-300">
+              {precedente.data.title}
+            </span>
+          </a>
+        )}
+        {successivo && (
+          <a
+            href={withBase(`/didattica/${successivo.slug}/`)}
+            rel="next"
+            class="group block rounded-xl border border-slate-200 bg-white p-4 text-right transition hover:border-brand-300 hover:shadow-md sm:col-start-2 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-brand-700"
+          >
+            <span class="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Successivo →</span>
+            <span class="mt-1 block font-semibold text-slate-900 group-hover:text-brand-700 dark:text-slate-100 dark:group-hover:text-brand-300">
+              {successivo.data.title}
+            </span>
+          </a>
+        )}
+      </nav>
+    )
+  }
+
+  {
     correlati.length > 0 && (
-      <section slot="dopo" class="no-print mt-14 border-t border-slate-200 pt-8 dark:border-slate-800">
+      <section
+        slot="dopo"
+        class:list={[
+          'no-print border-t border-slate-200 pt-8 dark:border-slate-800',
+          precedente || successivo ? 'mt-10' : 'mt-14'
+        ]}
+      >
         <h2 class="mb-4 text-lg font-bold text-slate-900 dark:text-white">Altri materiali su «{d.argomento}»</h2>
         <div class="grid gap-4 sm:grid-cols-2">
           {correlati.map((m) => (
@@ -111,6 +158,16 @@ const meta = [
             />
           ))}
         </div>
+        {totaleArgomento - 1 > correlati.length && (
+          <p class="mt-4 text-right">
+            <a
+              href={withBase(`/didattica/materia/${materia.slug}/#${slugify(d.argomento)}`)}
+              class="text-sm font-medium text-brand-700 hover:underline dark:text-brand-300"
+            >
+              Vedi tutti i {totaleArgomento} materiali su «{d.argomento}» →
+            </a>
+          </p>
+        )}
       </section>
     )
   }
