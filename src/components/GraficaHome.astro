@@ -1,0 +1,158 @@
+---
+// Decorazione della home: le iniziali "AN" in Playfair Display (font con grazie), fatte di punti.
+// I punti arrivano da ogni parte e compongono le lettere da sinistra a destra, come se
+// venissero scritte; poi un lampo di luce le attraversa e infine "respirano" piano.
+// Le coordinate dei punti sono in src/data/iniziali-an.json (contorno + riempimento), ricavate
+// una volta dal file del font: il sito non carica il font, solo SVG + CSS.
+// Chi chiede di ridurre le animazioni vede subito le lettere ferme.
+import iniziali from '@/data/iniziali-an.json';
+
+interface Props {
+  class?: string;
+}
+
+const { class: classe } = Astro.props;
+
+// area utile: le lettere occupano circa y 57–183 su una larghezza di 280
+const VB = { x: 0, y: 30, w: 280, h: 180 };
+const PASSO = 12; // griglia di punti di sfondo
+
+// tempi (ms)
+const INIZIO = 300; // prima che partano i punti
+const SCRITTURA = 1800; // tempo in cui le lettere si compongono da sinistra a destra
+const VOLO = 2600; // durata del volo di ogni punto
+const LAMPO = INIZIO + SCRITTURA + VOLO + 200; // il lampo parte quando tutto è al suo posto
+
+// numeri "casuali" ma sempre uguali a ogni pubblicazione
+let seme = 11;
+const caso = () => {
+  seme = (seme * 16807) % 2147483647;
+  return seme / 2147483647;
+};
+
+type Punto = { x: number; y: number; dx: number; dy: number; rit: number; onda: number; classe: string; r: number };
+
+function prepara(lista: number[][], tipo: 'bordo' | 'riempi'): Punto[] {
+  return lista.map(([x, y]) => {
+    // partenza: un punto a caso in un'area più grande del disegno
+    const px = -60 + caso() * (VB.w + 120);
+    const py = VB.y - 50 + caso() * (VB.h + 100);
+    const progresso = (x - 18) / 245; // 0 a sinistra, 1 a destra
+    const r = caso();
+    return {
+      x,
+      y,
+      dx: +(px - x).toFixed(1),
+      dy: +(py - y).toFixed(1),
+      rit: Math.round(INIZIO + progresso * SCRITTURA + caso() * 350 + (tipo === 'riempi' ? 250 : 0)),
+      onda: Math.round(progresso * 1400),
+      r: tipo === 'bordo' ? 2.15 : 1.9,
+      classe:
+        tipo === 'riempi'
+          ? 'fill-brand-300 dark:fill-brand-700'
+          : r < 0.05
+            ? 'fill-violet-500'
+            : r < 0.1
+              ? 'fill-emerald-500'
+              : 'fill-brand-600 dark:fill-brand-400'
+    };
+  });
+}
+
+// prima il riempimento, poi il contorno (così il contorno sta sopra)
+const punti = [...prepara(iniziali.riempi, 'riempi'), ...prepara(iniziali.bordo, 'bordo')];
+---
+
+<svg
+  viewBox={`${VB.x} ${VB.y} ${VB.w} ${VB.h}`}
+  xmlns="http://www.w3.org/2000/svg"
+  aria-hidden="true"
+  focusable="false"
+  class:list={['grafica-home', classe]}
+  style={`--lampo:${LAMPO}ms;--volo:${VOLO}ms`}
+>
+  <defs>
+    <pattern id="gh-punti" width={PASSO} height={PASSO} patternUnits="userSpaceOnUse">
+      <circle cx={PASSO / 2} cy={PASSO / 2} r="1" class="fill-slate-300 dark:fill-slate-700" />
+    </pattern>
+    <radialGradient id="gh-sfuma">
+      <stop offset="0.45" stop-color="#fff" />
+      <stop offset="1" stop-color="#000" />
+    </radialGradient>
+    <mask id="gh-maschera">
+      <rect x={VB.x} y={VB.y} width={VB.w} height={VB.h} fill="url(#gh-sfuma)" />
+    </mask>
+  </defs>
+
+  <!-- griglia di punti, sfumata ai bordi -->
+  <rect x={VB.x} y={VB.y} width={VB.w} height={VB.h} fill="url(#gh-punti)" mask="url(#gh-maschera)" class="gh-griglia" />
+
+  <!-- iniziali -->
+  {
+    punti.map((p) => (
+      <g class="gh-sposta" style={`--dx:${p.dx}px;--dy:${p.dy}px;--rit:${p.rit}ms`}>
+        <circle cx={p.x} cy={p.y} r={p.r} class:list={['gh-punto', p.classe]} style={`--onda:${p.onda}ms`} />
+      </g>
+    ))
+  }
+</svg>
+
+<style>
+  /* 0. la griglia di sfondo compare piano */
+  .gh-griglia {
+    animation: gh-dissolvi 1.2s ease-out both;
+  }
+  @keyframes gh-dissolvi {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /* 1. i punti volano al loro posto, da sinistra a destra */
+  .gh-sposta {
+    animation: gh-arriva var(--volo) cubic-bezier(0.16, 1, 0.3, 1) var(--rit) both;
+  }
+  @keyframes gh-arriva {
+    from {
+      transform: translate(var(--dx), var(--dy));
+      opacity: 0;
+    }
+    25% {
+      opacity: 0.6;
+    }
+  }
+
+  /* 2. un lampo di luce attraversa le lettere, 3. poi respirano piano */
+  .gh-punto {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation:
+      gh-lampo 0.9s ease-out calc(var(--lampo) + var(--onda)) both,
+      gh-respira 6s ease-in-out calc(var(--lampo) + 1.4s + var(--onda)) infinite;
+  }
+  @keyframes gh-lampo {
+    40% {
+      transform: scale(1.7);
+      filter: brightness(1.5);
+    }
+  }
+  @keyframes gh-respira {
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(0.8);
+      opacity: 0.7;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gh-griglia,
+    .gh-sposta,
+    .gh-punto {
+      animation: none;
+    }
+  }
+</style>

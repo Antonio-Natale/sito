@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Card from '@/components/Card.astro';
+import GraficaHome from '@/components/GraficaHome.astro';
 import SectionHeading from '@/components/SectionHeading.astro';
 import { MATERIE, MOSTRA_PROGETTI, SITE } from '@/data/site';
 import { coloreMateria } from '@/lib/colori';
@@ -16,7 +17,9 @@ const conteggio = (slug: string) => tuttiMateriali.filter((m) => m.data.materia 
 ---
 
 <BaseLayout>
-  <section class="py-8">
+  <section class="grid items-center gap-6 py-8 md:grid-cols-[1fr_18rem] md:gap-10">
+    <GraficaHome class="w-48 sm:w-60 md:order-last md:w-full" />
+    <div>
     <p class="text-sm font-medium uppercase tracking-wider text-brand-600 dark:text-brand-300">{SITE.istituto}</p>
     <h1 class="mt-2 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl dark:text-white">{SITE.titolo}</h1>
     <p class="mt-4 max-w-2xl text-lg text-slate-600 dark:text-slate-400">{SITE.descrizione}</p>
@@ -36,6 +39,7 @@ const conteggio = (slug: string) => tuttiMateriali.filter((m) => m.data.materia 
       >
         Ricevimento
       </a>
+    </div>
     </div>
   </section>
 
