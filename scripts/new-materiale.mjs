@@ -100,8 +100,7 @@ try {
   if (materie.length === 0) throw new Error('Nessuna materia trovata in src/data/site.ts (MATERIE).');
 
   let titolo = process.argv.slice(2).join(' ').trim();
-  // il nome del file deriva dal titolo e deve essere unico in tutte le cartelle:
-  // gli allegati vanno in public/documenti/<nome>/, condivisa tra file con lo stesso nome
+  // il nome del file deriva dal titolo e deve essere unico in tutte le cartelle
   for (;;) {
     while (!titolo) titolo = await chiedi('Titolo');
     const doppione = elencaSchede().find((f) => f.split('/').pop() === `${slugify(titolo)}.md`);
@@ -137,6 +136,8 @@ try {
   const bozza = (await chiedi('Salvare come bozza? (s/n)', 's')).toLowerCase().startsWith('s');
 
   const slug = slugify(titolo);
+  // allegati e immagini: public/documenti/<argomento>/<nome-materiale>/
+  const docs = `documenti/${slugify(argomento)}/${slug}`;
   const relFile = cartella ? `${cartella}/${slug}.md` : `${slug}.md`;
   const file = join(DIR, ...relFile.split('/'));
 
@@ -161,14 +162,14 @@ ${ordine !== undefined ? '' : '# '}ordine: ${ordine ?? 1}
 tags: []
 
 # ALLEGATI — per aggiungere PDF, togli il # SOLO dalle righe con "allegati",
-# "- nome" e "file". I file vanno in public/documenti/${slug}/
+# "- nome" e "file". I file vanno in public/${docs}/
 # I PDF si leggono nella pagina e non si scaricano; per permettere il download
 # di un file aggiungi sotto il suo "file" la riga "    scaricabile: true".
 # allegati:
 #   - nome: Presentazione
-#     file: documenti/${slug}/nome-file.pdf
+#     file: ${docs}/nome-file.pdf
 #   - nome: Scheda di esercizi
-#     file: documenti/${slug}/altro-file.pdf
+#     file: ${docs}/altro-file.pdf
 
 # SLIDE HTML (cartella in public/slides/${slug}/ con dentro index.html):
 # slides: slides/${slug}/
@@ -196,11 +197,11 @@ Testo normale, con parole in **grassetto** e in *corsivo*.
 > Un riquadro di citazione o di avviso.
 
 <!--
-IMMAGINE: metti il file in public/documenti/${slug}/, poi copia la riga qui sotto
+IMMAGINE: metti il file in public/${docs}/, poi copia la riga qui sotto
 fuori da questo commento e cambia il nome del file. Il percorso deve iniziare con /sito/
 (non usare ../ : il sito cercherebbe l'immagine nel posto sbagliato e non si pubblicherebbe).
 
-![Descrizione dell'immagine](/sito/documenti/${slug}/immagine.png)
+![Descrizione dell'immagine](/sito/${docs}/immagine.png)
 -->
 
 Link a una pagina esterna: [testo del link](https://www.esempio.it)
@@ -212,11 +213,11 @@ Link a un altro materiale del sito: [titolo](/sito/didattica/nome-altro-material
   const dirScheda = join(DIR, ...(cartella ? cartella.split('/') : []));
   if (!existsSync(dirScheda)) mkdirSync(dirScheda, { recursive: true });
   writeFileSync(file, contenuto, 'utf8');
-  const dirAllegati = join(ROOT, 'public', 'documenti', slug);
+  const dirAllegati = join(ROOT, 'public', ...docs.split('/'));
   if (!existsSync(dirAllegati)) mkdirSync(dirAllegati, { recursive: true });
 
   console.log(`\n✔ Creato src/content/materiali/${relFile}`);
-  console.log(`✔ Cartella allegati: public/documenti/${slug}/`);
+  console.log(`✔ Cartella allegati: public/${docs}/`);
   if (nuovoArgomento) {
     if (aggiungiArgomento(materia, argomento))
       console.log(`✔ Argomento "${argomento}" aggiunto in src/data/site.ts (in fondo: sposta la voce per cambiarne l'ordine)`);

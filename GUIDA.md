@@ -130,12 +130,12 @@ Le domande, in ordine:
 
 Alla fine crea:
 - la scheda `src/content/materiali/<cartella>/<nome>.md` (il nome deriva dal titolo);
-- la cartella vuota `public/documenti/<nome>/` per i PDF e le immagini.
+- la cartella vuota `public/documenti/<argomento>/<nome>/` per i PDF e le immagini (es. `public/documenti/logistica/parte-1-.../`).
 
 **Apri la scheda creata:** contiene un commento accanto a ogni campo, gli esempi già pronti
 per allegati e slide (basta togliere i `#`) e alcuni esempi di formattazione nel testo da
-cancellare o modificare. Se scegli un argomento nuovo, lo script ti ricorda di aggiungerlo
-all'elenco `argomenti` in `site.ts` (vedi [sezione 6](#6-dati-generali-del-sito)).
+cancellare o modificare. Se scegli un argomento nuovo, lo script lo aggiunge da solo in fondo
+all'elenco `argomenti` in `site.ts`: sposta la voce per cambiarne l'ordine (vedi [sezione 6](#6-dati-generali-del-sito)).
 
 > **Cartelle:** servono solo a tenere ordine. Il sito raggruppa i materiali in base ai campi
 > `materia` e `argomento`, non alla cartella. Il nome della cartella però entra nell'indirizzo
@@ -144,7 +144,7 @@ all'elenco `argomenti` in `site.ts` (vedi [sezione 6](#6-dati-generali-del-sito)
 > (lo script li adatta da solo).
 >
 > **Nomi unici:** due materiali non possono avere lo stesso nome di file, nemmeno in cartelle
-> diverse, perché condividerebbero la cartella degli allegati `public/documenti/<nome>/`.
+> diverse, per non confonderli tra loro.
 > Lo script se ne accorge e chiede un altro titolo.
 
 ### `npm run new:cv` — nuova voce del curriculum
@@ -228,7 +228,7 @@ Sito Web/
 │       ├── curriculum/        ← un file .yaml per ogni voce del curriculum
 │       └── progetti/          ← una scheda .md per ogni progetto (scolastico o personale)
 ├── public/
-│   ├── documenti/             ← PDF, immagini e altri allegati, una cartella per materiale
+│   ├── documenti/             ← PDF, immagini e allegati: una cartella per argomento, dentro una per materiale
 │   └── slides/                ← presentazioni HTML, una cartella per presentazione
 ├── scripts/                   ← gli script new:materiale e new:cv
 ├── private/                   ← file personali: NON viene mai pubblicata
@@ -389,7 +389,7 @@ File: **`src/data/competenze.ts`** — tre elenchi: `LINGUE`, `COMPETENZE_DIGITA
 Ogni materiale ha **due parti**:
 
 1. una **scheda** `.md` in `src/content/materiali/` (titolo, materia, argomento, testo);
-2. gli eventuali **file** (PDF, immagini…) in `public/documenti/<nome-materiale>/`.
+2. gli eventuali **file** (PDF, immagini…) in `public/documenti/<argomento>/<nome-materiale>/`.
 
 ### Creare un materiale (consigliato)
 
@@ -415,9 +415,9 @@ ordine: 1
 tags: [reti, tcp-ip]
 allegati:
   - nome: Dispensa completa
-    file: documenti/le-reti-di-computer/dispensa.pdf
+    file: documenti/reti/le-reti-di-computer/dispensa.pdf
   - nome: Esercizi
-    file: documenti/le-reti-di-computer/esercizi.pdf
+    file: documenti/reti/le-reti-di-computer/esercizi.pdf
 slides: slides/reti/
 draft: false
 ---
@@ -467,7 +467,7 @@ recente (escluse le bozze). Non serve fare nulla.
 
 - **Modificare:** apri la scheda `.md` e cambia ciò che serve.
 - **Nascondere:** metti `draft: true`.
-- **Eliminare:** cancella la scheda `.md` e la cartella `public/documenti/<nome>/`.
+- **Eliminare:** cancella la scheda `.md` e la cartella `public/documenti/<argomento>/<nome>/`.
 
 > **Attenzione:** l'indirizzo della pagina deriva dal **nome del file** della scheda
 > (`le-reti-di-computer.md` → `/sito/didattica/le-reti-di-computer/`). Se rinomini o sposti
@@ -479,12 +479,12 @@ recente (escluse le bozze). Non serve fare nulla.
 
 ### Allegati PDF: si leggono nel sito, non si scaricano
 
-1. Copia il file in `public/documenti/<nome-materiale>/`.
+1. Copia il file in `public/documenti/<argomento>/<nome-materiale>/`.
 2. Aggiungilo alla scheda:
    ```yaml
    allegati:
      - nome: Titolo mostrato sopra il documento
-       file: documenti/<nome-materiale>/file.pdf
+       file: documenti/<argomento>/<nome-materiale>/file.pdf
    ```
    Il percorso parte da `public/` e **non** inizia con `/`.
 
@@ -500,7 +500,7 @@ Ctrl+S e Ctrl+P sono bloccati e il documento non viene stampato.
 ```yaml
 allegati:
   - nome: Modulo da compilare
-    file: documenti/<nome-materiale>/modulo.pdf
+    file: documenti/<argomento>/<nome-materiale>/modulo.pdf
     scaricabile: true
 ```
 
@@ -516,10 +516,10 @@ Per i video usa YouTube o Drive e metti il link nel testo della scheda.
 
 ### Immagini nel testo
 
-1. Copia l'immagine in `public/documenti/<nome-materiale>/`.
+1. Copia l'immagine in `public/documenti/<argomento>/<nome-materiale>/`.
 2. Nel testo della scheda scrivi il percorso **completo, con `/sito/` davanti**:
    ```markdown
-   ![Schema del modello ISO/OSI](/sito/documenti/le-reti-di-computer/iso-osi.png)
+   ![Schema del modello ISO/OSI](/sito/documenti/reti/le-reti-di-computer/iso-osi.png)
    ```
 
 > **Mai percorsi con `../`** per le immagini (es. `../../documenti/...`): il sito cerca
