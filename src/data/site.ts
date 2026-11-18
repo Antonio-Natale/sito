@@ -26,7 +26,7 @@ export const MATERIE = [
       "Attività di laboratorio di informatica negli indirizzi professionali Servizi per la sanità e l'assistenza sociale e Servizi commerciali.",
     // non blu: si confonderebbe con il colore del sito (link e pulsanti)
     colore: 'viola',
-    argomenti: ['Sicurezza informatica']
+    argomenti: ['Sicurezza informatica', 'Excel']
   },
   {
     slug: 'tpsc',
