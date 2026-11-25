@@ -13,7 +13,7 @@ data: 2026-11-18
 # tipo: dispensa, slide, esercizi, mappa, recupero, compiti, simulazione, laboratorio, video, altro
 tipo: dispensa
 # ordine: posizione dentro l'argomento (1, 2, 3…); senza, si ordina per data
-# ordine: 1
+ordine: 1
 # tags: parole chiave per la ricerca, es. [ripasso, DSA]
 tags: []
 
