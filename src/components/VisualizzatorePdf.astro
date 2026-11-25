@@ -107,12 +107,29 @@ const { file, nome, compatto = false, consentiStampa = false } = Astro.props;
 
   const ZOOM = [0.5, 0.75, 1, 1.25, 1.5, 2, 3];
 
-  function errore(box: HTMLElement, e: unknown) {
+  // Messaggio comprensibile + pulsante per riprovare; il dettaglio tecnico resta nella console.
+  function errore(box: HTMLElement, e: unknown, riprova: () => void) {
     console.error('[VisualizzatorePdf]', e);
     const p = document.createElement('p');
-    p.className = 'py-8 text-center text-sm text-red-600';
-    p.textContent = `Impossibile caricare il documento (${e instanceof Error ? e.message : String(e)}).`;
-    box.replaceChildren(p);
+    p.className = 'text-sm text-slate-700 dark:text-slate-300';
+    p.textContent = 'Il documento non si è caricato. Controlla la connessione e riprova.';
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className =
+      'mt-4 min-h-11 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700';
+    btn.textContent = 'Riprova';
+    btn.addEventListener('click', () => {
+      const stato = document.createElement('p');
+      stato.className = 'py-8 text-center text-sm text-slate-500';
+      stato.textContent = 'Caricamento del documento…';
+      box.replaceChildren(stato);
+      riprova();
+    });
+    const div = document.createElement('div');
+    div.className = 'py-8 text-center';
+    div.setAttribute('role', 'alert');
+    div.append(p, btn);
+    box.replaceChildren(div);
   }
 
   async function avvia(root: HTMLElement) {
@@ -123,8 +140,12 @@ const { file, nome, compatto = false, consentiStampa = false } = Astro.props;
     const btnFs = root.querySelector<HTMLButtonElement>('[data-fs]')!;
     let zoomIdx = 2;
 
-    root.addEventListener('contextmenu', (e) => e.preventDefault());
-    root.addEventListener('dragstart', (e) => e.preventDefault());
+    // una sola volta, anche se il caricamento viene ritentato
+    if (!root.dataset.avviato) {
+      root.dataset.avviato = '';
+      root.addEventListener('contextmenu', (e) => e.preventDefault());
+      root.addEventListener('dragstart', (e) => e.preventDefault());
+    }
 
     let doc: PDFDocumentProxy;
     try {
@@ -133,7 +154,7 @@ const { file, nome, compatto = false, consentiStampa = false } = Astro.props;
       const attesa = new Promise<never>((_, no) => setTimeout(() => no(new Error('tempo scaduto')), 30000));
       doc = await Promise.race([pdfjs.getDocument({ url: src }).promise, attesa]);
     } catch (e) {
-      errore(box, e);
+      errore(box, e, () => avvia(root).catch((x) => console.error('[VisualizzatorePdf]', x)));
       return;
     }
 

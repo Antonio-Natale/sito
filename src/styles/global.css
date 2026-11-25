@@ -4,6 +4,16 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Focus da tastiera ben visibile su link, pulsanti e menu (non compare con il mouse).
+   Il contorno segue gli angoli arrotondati di card e pulsanti. I campi dei filtri hanno già il loro. */
+:where(a, button, summary, [tabindex]):focus-visible {
+  outline: 2px solid theme('colors.brand.500');
+  outline-offset: 2px;
+}
+.dark :where(a, button, summary, [tabindex]):focus-visible {
+  outline-color: theme('colors.brand.300');
+}
+
 /* font dei titoli */
 h1,
 h2,

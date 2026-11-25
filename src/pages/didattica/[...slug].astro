@@ -6,7 +6,6 @@ import Card from '@/components/Card.astro';
 import Icona from '@/components/Icona.astro';
 import VisualizzatorePdf from '@/components/VisualizzatorePdf.astro';
 import { getMateria } from '@/data/site';
-import { coloreMateria } from '@/lib/colori';
 import { confrontaMateriali, materialiVicini } from '@/lib/materiali';
 import { ETICHETTE_TIPO, formatClassi, formatDate, getPublished, slugify, withBase } from '@/lib/utils';
 
@@ -65,14 +64,6 @@ const meta = [
   meta={meta}
   tags={d.tags}
 >
-  <a
-    slot="sopra-titolo"
-    href={withBase(`/didattica/materia/${materia.slug}/`)}
-    class:list={['mb-3 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium', coloreMateria(materia.slug).chip]}
-  >
-    {materia.nome}
-  </a>
-
   {
     link.length > 0 && (
       <aside slot="prima" class="mt-6 rounded-xl border border-brand-100 bg-brand-50/50 p-5 dark:border-brand-900 dark:bg-brand-950/40">

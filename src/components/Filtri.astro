@@ -87,9 +87,17 @@ const selectClass =
   </div>
 </form>
 
-<p id="filtri-vuoto" hidden class="mt-8 text-slate-500 dark:text-slate-400">
-  Nessun materiale corrisponde ai filtri scelti.
-</p>
+<div id="filtri-vuoto" hidden class="mt-8 rounded-xl border border-dashed border-slate-300 px-6 py-8 text-center dark:border-slate-700">
+  <p class="text-slate-600 dark:text-slate-400">Nessun materiale corrisponde ai filtri scelti.</p>
+  <!-- form="filtri": azzera il modulo dei filtri anche se il pulsante sta fuori -->
+  <button
+    type="reset"
+    form="filtri"
+    class="mt-4 min-h-11 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+  >
+    Azzera filtri
+  </button>
+</div>
 
 <script>
   const form = document.getElementById('filtri') as HTMLFormElement | null;
